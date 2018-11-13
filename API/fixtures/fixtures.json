@@ -1,0 +1,408 @@
+[{
+		"model": "API.userstatus",
+		"pk": 1,
+		"fields": {
+			"status": "Active",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.userstatus",
+		"pk": 2,
+		"fields": {
+			"status": "Inactive",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.userstatus",
+		"pk": 3,
+		"fields": {
+			"status": "Suspended",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.userstatus",
+		"pk": 4,
+		"fields": {
+			"status": "Blocked",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.userstatus",
+		"pk": 5,
+		"fields": {
+			"status": "Visitor",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatortype",
+		"pk": 1,
+		"fields": {
+			"type": "Multiple Choice",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatortype",
+		"pk": 2,
+		"fields": {
+			"type": "Text",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 1,
+		"fields": {
+			"option": "Yes",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 2,
+		"fields": {
+			"option": "No",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 3,
+		"fields": {
+			"option": "N/A",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 4,
+		"fields": {
+			"option": "N/O",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 5,
+		"fields": {
+			"option": "0",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 6,
+		"fields": {
+			"option": "1",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 7,
+		"fields": {
+			"option": "Maybe",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+  	{
+		"model": "API.indicatoroption",
+		"pk": 8,
+		"fields": {
+			"option": "Pass",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.indicatoroption",
+		"pk": 9,
+		"fields": {
+			"option": "Fail",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 1,
+		"fields": {
+			"type": "First",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 2,
+		"fields": {
+			"type": "Last",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 3,
+		"fields": {
+			"type": "Maiden",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 4,
+		"fields": {
+			"type": "Middle",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 5,
+		"fields": {
+			"type": "Nickname",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 6,
+		"fields": {
+			"type": "Salutation",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 7,
+		"fields": {
+			"type": "Suffix",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.nametype",
+		"pk": 7,
+		"fields": {
+			"type": "Full",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.phonenumbertype",
+		"pk": 1,
+		"fields": {
+			"type": "Mobile",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.phonenumbertype",
+		"pk": 2,
+		"fields": {
+			"type": "Home",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.phonenumbertype",
+		"pk": 3,
+		"fields": {
+			"type": "Work",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationtype",
+		"pk": 1,
+		"fields": {
+			"type": "Email",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationtype",
+		"pk": 2,
+		"fields": {
+			"type": "Text",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationtype",
+		"pk": 3,
+		"fields": {
+			"type": "Phone",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddresstype",
+		"pk": 1,
+		"fields": {
+			"type": "Primary",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddresstype",
+		"pk": 2,
+		"fields": {
+			"type": "Secondary",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationstatus",
+		"pk": 1,
+		"fields": {
+			"status": "Ready",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationstatus",
+		"pk": 2,
+		"fields": {
+			"status": "Queued",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationstatus",
+		"pk": 3,
+		"fields": {
+			"status": "Sent",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.notificationstatus",
+		"pk": 4,
+		"fields": {
+			"status": "Failed",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 1,
+		"fields": {
+			"status": "Active",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 2,
+		"fields": {
+			"status": "Inactive",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 3,
+		"fields": {
+			"status": "Suspended",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 4,
+		"fields": {
+			"status": "Blocked",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 5,
+		"fields": {
+			"status": "Exists",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.emailaddressstatus",
+		"pk": 6,
+		"fields": {
+			"status": "Not Found",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.addresstype",
+		"pk": 1,
+		"fields": {
+			"type": "Home",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.addresstype",
+		"pk": 2,
+		"fields": {
+			"type": "Mailing",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		}
+	},
+	{
+		"model": "API.addresstype",
+		"pk": 3,
+		"fields": {
+			"type": "Work",
+			"created": "2018-11-08",
+			"updated": "2018-11-08"
+		},
+		"created": "2018-11-08",
+		"updated": "2018-11-08"
+	}
+]

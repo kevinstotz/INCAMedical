@@ -1,0 +1,1 @@
+[{"model": "API.userprofile", "pk": 1, "fields": {"first_name": 1, "last_name": 2, "address": 1, "date_of_birth": "1970-11-19", "avatar": "images/kevin.jpg", "about": "about me", "updated": "2018-11-07T18:19:37.507Z", "created": "2018-11-13T14:30:09.532Z"}}]
