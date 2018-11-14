@@ -24,10 +24,10 @@ PROJECT_NAME = relpath(PROJECT_DIR)  # DimeAPI
 SECURE = 'https://'
 UNSECURE = 'http://'
 
-WEBSITE_IP_ADDRESS = "192.168.1.18"
+WEBSITE_IP_ADDRESS = "127.0.0.1"
 WEBSITE_DOMAIN = 'incamedical.com'
-WEBSITE_HOSTNAME = 'www' + "." + WEBSITE_DOMAIN
-WEBSITE_HOSTNAME_PORT = 3000
+WEBSITE_HOSTNAME = 'audits' + "." + WEBSITE_DOMAIN
+WEBSITE_HOSTNAME_PORT = 10101
 WEBSITE_HOSTNAME_URL = WEBSITE_HOSTNAME + ":" + str(WEBSITE_HOSTNAME_PORT)
 
 ENGINE_IP_ADDRESS = "127.0.0.1"
@@ -45,11 +45,10 @@ LOCAL_HOST_AND_PORT = LOCAL_HOST + ':' + str(LOCAL_HOST_PORT)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '(tlbv7h$1t9tono86(4w%aat9@%6*^#s7q)f1hojg#v8f&16ig'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [LOCAL_HOST, ENGINE_HOSTNAME]
+ALLOWED_HOSTS = [LOCAL_HOST, ENGINE_HOSTNAME, WEBSITE_HOSTNAME]
 
 # Application definition
 
@@ -97,12 +96,13 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
 }
-
 CORS_ORIGIN_WHITELIST = (
      LOCAL_HOST + ':' + str(LOCAL_HOST_PORT),
+     WEBSITE_HOSTNAME,
 )
 CSRF_TRUSTED_ORIGINS = (
      LOCAL_HOST + ':' + str(LOCAL_HOST_PORT),
+     WEBSITE_HOSTNAME,
 )
 
 CORS_ORIGIN_ALLOW_ALL = False
