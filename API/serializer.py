@@ -89,7 +89,7 @@ class IndicatorSerializer(ModelSerializer):
     class Meta:
         model = Indicator
         read_only_fields = ('id', )
-        fields = ('id', 'name', 'short_name', 'active', 'options', 'type', )
+        fields = ('id', 'name', 'short_name', 'active', 'options', 'type', 'image', )
 
     def create(self, validated_data):
         company = Company.objects.get(pk=self.get_context_company("company", self.context))

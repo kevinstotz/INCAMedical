@@ -487,6 +487,7 @@ class Indicator(models.Model):
                              default=1,
                              verbose_name="Indicator Type", )
     options = models.ManyToManyField(IndicatorOption)
+    image = models.ImageField(verbose_name="Indicator Image", name="indicaotrImage", default="")
     name = models.TextField(max_length=2000)
     active = models.BooleanField(default=True, verbose_name="Indicators Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
