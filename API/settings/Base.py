@@ -125,7 +125,7 @@ class Base(Configuration):
             'HOST': 'dev.cdt994n5tnkz.us-west-2.rds.amazonaws.com',
             'PORT': '3306',
             'OPTIONS': {
-                'read_default_file': join('/', 'etc', 'mysql', 'conf.d/', 'mysql.INCAMedical.cnf'),
+                'read_default_file': join('/etc', 'mysql', 'conf.d', 'mysql.INCAMedical.cnf'),
             },
 
         },

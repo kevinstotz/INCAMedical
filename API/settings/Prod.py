@@ -22,3 +22,4 @@ class Prod(Base):
 
     # SECRET_KEY = environ['SECRET_KEY']
     Base.ALLOWED_HOSTS.append(WEBSITE_HOSTNAME)
+    Base.ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
