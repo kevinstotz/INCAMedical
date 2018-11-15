@@ -1,7 +1,7 @@
 import logging
 from API.settings.Globals import UUID_ZERO
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField
-from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, \
+from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, Image, \
     CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, \
     Country, ClinicType, SpecialtyType, Template, Category, Indicator, IndicatorOption, IndicatorType
 
@@ -52,17 +52,36 @@ class TemplateCategorySerializer(ModelSerializer):
         return "#" if str(obj.parent) == UUID_ZERO else obj.parent
 
 
+class ImageSerializer(ModelSerializer):
+
+    class Meta:
+        model = Image
+        read_only_fields = ('id', )
+        fields = ('id', 'name', 'path', )
+
+
 class TemplateIndicatorSerializer(ModelSerializer):
     parent = SerializerMethodField(source=id)
     text = ReadOnlyField(source='indicator.name', )
+    images = ImageSerializer(many=True)
+    type =  SerializerMethodField(source='indicator.type')
+    options = SerializerMethodField(source='indicator.options')
 
     class Meta:
         model = TemplateIndicator
         read_only_fields = ('id', 'text')
-        fields = ('id', 'parent', "uuid", 'text', )
+        fields = ('id', 'parent', "uuid", 'text', 'images', 'type', 'options', )
 
     def get_parent(self, obj):
         return "#" if str(obj.parent) == UUID_ZERO else obj.parent
+
+    def get_options(self, obj):
+        serializer = IndicatorOptionSerializer(obj.indicator.options, many=True)
+        return serializer.data
+
+    def get_type(self, obj):
+        serializer = IndicatorTypeSerializer(obj.indicator.type)
+        return serializer.data
 
 
 class IndicatorOptionSerializer(ModelSerializer):
@@ -85,11 +104,12 @@ class IndicatorSerializer(ModelSerializer):
     short_name = SerializerMethodField()
     type = SerializerMethodField()
     options = SerializerMethodField()
+    images = SerializerMethodField()
 
     class Meta:
         model = Indicator
         read_only_fields = ('id', )
-        fields = ('id', 'name', 'short_name', 'active', 'options', 'type', 'image', )
+        fields = ('id', 'name', 'short_name', 'active', 'options', 'type', 'images', )
 
     def create(self, validated_data):
         company = Company.objects.get(pk=self.get_context_company("company", self.context))
@@ -111,6 +131,10 @@ class IndicatorSerializer(ModelSerializer):
 
     def get_options(self, instance):
         serializer = IndicatorOptionSerializer(instance.options.get_queryset(), many=True)
+        return serializer.data
+
+    def get_images(self, obj):
+        serializer = IndicatorTypeSerializer(IndicatorType.objects.get(indicatorType=obj))
         return serializer.data
 
 

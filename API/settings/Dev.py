@@ -46,7 +46,7 @@ class Dev(Base):
     Base.CSRF_TRUSTED_ORIGINS.append("http://www.audits.incamedical.com:10101")
     Base.CSRF_TRUSTED_ORIGINS.append("http://www.api.incamedical.com:10101")
 
-    DATABASES = {
+    Base.DATABASES = {
         'default': {
             'NAME': 'incamedicalapi_dev',
             'ENGINE': 'django.db.backends.mysql',
@@ -58,3 +58,7 @@ class Dev(Base):
         },
 
     }
+
+    Base.STATICFILES_DIRS = (
+        join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web"),
+    )

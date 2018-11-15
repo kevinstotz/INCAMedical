@@ -161,7 +161,11 @@ class Base(Configuration):
     USE_TZ = True
     AUTH_USER_MODEL = 'API.CustomUser'
     MANAGERS = ADMINS
+    # base public URL of MEDIA_ROOT directory
     MEDIA_URL = ''
+
+    # the full path to a directory where you’d like Django to store uploaded files
+    MEDIA_ROOT = ''
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
     # Absolute path to the directory static files should be collected to.
@@ -176,13 +180,12 @@ class Base(Configuration):
     STATIC_URL = '/static2/'
     # Additional locations of static files
     STATICFILES_DIRS = (
-        join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web"),
         join("/var", "www", "html", "incamedical", "INCAMedical"),
         # Put strings here, like "/home/html/static" or "C:/www/django/static".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
     )
-    ROOT_URLCONF = 'API.urls'
+
 
 from API.settings.Dev import *
 from API.settings.Prod import *

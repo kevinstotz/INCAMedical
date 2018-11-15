@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from API.settings.Base import STATICFILES_DIRS
 from API.settings.Globals import EMAIL_LENGTH, PASSWORD_LENGTH, AUDIT_AREA_NAME_LENGTH, UUID_ZERO, \
     ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH
 
@@ -364,6 +365,22 @@ class Company(models.Model):
         ordering = ('id', )
 
 
+class Note(models.Model):
+    id = models.AutoField(primary_key=True)
+    note = models.TextField(max_length=2000)
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Note Active")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+
+
 class IndicatorOption(models.Model):
     id = models.AutoField(primary_key=True)
     option = models.CharField(max_length=50, blank=False, unique=True)
@@ -473,6 +490,24 @@ class Indicators(models.Model):
         ordering = ('id', )
 
 
+class Image(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, default="", blank=True)
+    image = models.FileField(verbose_name="Image path", name="imagePath")
+    path = models.FilePathField(path=STATICFILES_DIRS[0], match=None, recursive=False, max_length=100)
+    active = models.BooleanField(default=True, verbose_name="Indicators Active")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.image
+
+    class Meta:
+        ordering = ('id', )
+
+
 class Indicator(models.Model):
     id = models.AutoField(primary_key=True)
     short_name = models.CharField(max_length=50)
@@ -487,7 +522,6 @@ class Indicator(models.Model):
                              default=1,
                              verbose_name="Indicator Type", )
     options = models.ManyToManyField(IndicatorOption)
-    image = models.ImageField(verbose_name="Indicator Image", name="indicaotrImage", default="")
     name = models.TextField(max_length=2000)
     active = models.BooleanField(default=True, verbose_name="Indicators Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
@@ -838,6 +872,7 @@ class TemplateIndicator(models.Model):
                                   related_name="templateIndicatorIndicator",
                                   default=1,
                                   verbose_name="Template Indicator Indicator", )
+    images = models.ManyToManyField(Image)
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Indicator Active")
