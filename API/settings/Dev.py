@@ -46,7 +46,7 @@ class Dev(Base):
     Base.CSRF_TRUSTED_ORIGINS.append("http://www.audits.incamedical.com:10101")
     Base.CSRF_TRUSTED_ORIGINS.append("http://www.api.incamedical.com:10101")
 
-    Base.DATABASES = {
+    DATABASES = {
         'default': {
             'NAME': 'incamedicalapi_dev',
             'ENGINE': 'django.db.backends.mysql',
