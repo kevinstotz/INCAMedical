@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.urls import path
-from API.views.company.views  import \
+from API.views.company.views  import IndexView, \
     CompanyList, CompanyDetail, CompanyCreate, \
     SpecialtyTypeList, SpecialtyTypeDetail, \
     AuditAreaList, AuditAreaDetail, \
@@ -31,6 +31,10 @@ from API.views.company.views  import \
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path(r'', IndexView.as_view(), name="indexView"),
+    path(r'api/', IndexView.as_view(), name="indexView"),
+    path(r'api/v1/', IndexView.as_view(), name="indexView"),
 
     path(r'api/v1/company/', CompanyList.as_view({'get': 'list'})),
     path(r'api/v1/company/create/', CompanyCreate.as_view(), name="companyCreate"),

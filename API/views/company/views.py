@@ -1,12 +1,13 @@
+
 from API.models import Company, AuditArea, ClinicType, SpecialtyType, Template, Category, Indicator, TemplateCategory, \
-    IndicatorType, IndicatorOption, TemplateIndicator, Audit
+    IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index
 from API.classes.utils import ReturnResponse
 from API.filters.filters import TemplateListFilter, TemplateCategoryListFilter, CompanyListFilter, CategoryListFilter, \
     IndicatorOptionListFilter, IndicatorListFilter, IndicatorTypeListFilter, SpecialtyTypeListFilter, AuditListFilter, \
     TemplateIndicatorListFilter, AuditAreaListFilter
 from API.serializer import CompanySerializer, AuditAreaSerializer, ClinicTypeSerializer, SpecialtyTypeSerializer, \
     TemplateSerializer, CategorySerializer, IndicatorSerializer, TemplateCategorySerializer, IndicatorTypeSerializer, \
-    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditSerializer
+    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditSerializer, IndexSerializer
 
 import logging
 from rest_framework import viewsets
@@ -20,6 +21,14 @@ from rest_framework import serializers
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s (%(threadName)-2s) %(message)s', )
 logger = logging.getLogger(__name__)
+
+
+class IndexView(generics.ListAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = IndexSerializer
+    parser_classes = (JSONParser, )
+    queryset = Index.objects.all()
+    model = Index
 
 
 class IndicatorTypeList(viewsets.ModelViewSet):
@@ -37,7 +46,6 @@ class IndicatorTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
     queryset = IndicatorType.objects.all()
-    #  filter_class = IndicatorTypeDetailFilter
 
 
 class IndicatorOptionList(viewsets.ModelViewSet):

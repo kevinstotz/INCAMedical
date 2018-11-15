@@ -1,13 +1,18 @@
 import logging
-from API.settings.base import UUID_ZERO
+from API.settings.Globals import UUID_ZERO
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField
 from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, \
-    CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, \
+    CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, \
     Country, ClinicType, SpecialtyType, Template, Category, Indicator, IndicatorOption, IndicatorType
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s (%(threadName)-2s) %(message)s')
+
+
+class IndexSerializer(ModelSerializer):
+    class Meta:
+        model = Index
 
 
 class CategorySerializer(ModelSerializer):
@@ -330,11 +335,13 @@ class AuditAreaSerializer(ModelSerializer):
 class AuditSerializer(ModelSerializer):
     template = SerializerMethodField()
     area = SerializerMethodField()
+    categories = SerializerMethodField()
+    indicators = SerializerMethodField()
 
     class Meta:
         model = Audit
         read_only_fields = ('id', 'created',)
-        fields = ('id', 'area', 'name', 'active', 'template', 'created', )
+        fields = ('id', 'area', 'name', 'active', 'template', 'categories', 'created', 'indicators', )
 
     def get_template(self, obj):
         serializer = TemplateSerializer(Template.objects.get())
@@ -342,4 +349,12 @@ class AuditSerializer(ModelSerializer):
 
     def get_area(self, instance):
         serializer = AuditAreaSerializer(AuditArea.objects.get())
+        return serializer.data
+
+    def get_categories(self, instance):
+        serializer = TemplateCategorySerializer(TemplateCategory.objects.all().order_by("parent", "uuid"), many=True)
+        return serializer.data
+
+    def get_indicators(self, instance):
+        serializer = TemplateIndicatorSerializer(TemplateIndicator.objects.all().order_by("parent", "uuid"), many=True)
         return serializer.data

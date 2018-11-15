@@ -7,3 +7,4 @@ django-oauth-toolkit==1.2.0
 requests==2.20.0
 oauthlib==2.1.0
 django-user-agents==0.3.2
+django-configurations==2.1
