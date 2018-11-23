@@ -15,6 +15,7 @@ from API.settings import Globals
 from os.path import join
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
+
 class Base(Configuration):
     SECRET_KEY = Globals.SECRET_KEY
 
@@ -58,6 +59,7 @@ class Base(Configuration):
             'rest_framework_json_api.pagination.PageNumberPagination',
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework_json_api.parsers.JSONParser',
+            'rest_framework.parsers.FormParser',
             'rest_framework.parsers.MultiPartParser',
         ),
         'DEFAULT_RENDERER_CLASSES': (
@@ -81,7 +83,7 @@ class Base(Configuration):
         #   'Content-Disposition',
         #   'Access-Control-Allow-Credentials',
         #   'Origin',
-        #   'enctype',
+        'enctype',
         #   'user-agent',
         #   'Redirect',
         #   'Authorization',
@@ -162,30 +164,28 @@ class Base(Configuration):
     AUTH_USER_MODEL = 'API.CustomUser'
     MANAGERS = ADMINS
     # base public URL of MEDIA_ROOT directory
-    MEDIA_URL = ''
-
+    MEDIA_URL = 'static/media/'
+    MEDIA_ROOT = join(Globals.BASE_DIR, 'media')
     # the full path to a directory where you’d like Django to store uploaded files
-    MEDIA_ROOT = ''
+
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
     # Absolute path to the directory static files should be collected to.
     # Don't put anything in this directory yourself; store your static files
     # in apps' "static/" subdirectories and in STATICFILES_DIRS.
     # Example: "/home/media/media.lawrence.com/static/"
-
-    STATIC_ROOT = '/static/'
+    STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
     # URL prefix for static files.
     # Example: "http://media.lawrence.com/static/"
 
-    STATIC_URL = '/static2/'
+    STATIC_URL = '/static/'
     # Additional locations of static files
     STATICFILES_DIRS = (
-        join("/var", "www", "html", "incamedical", "INCAMedical"),
+        join("/var", "www", "html", "incamedical", "INCAMedical", "static", ),
         # Put strings here, like "/home/html/static" or "C:/www/django/static".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
     )
 
-
-from API.settings.Dev import *
-from API.settings.Prod import *
+from API.settings.Dev import Dev
+from API.settings.Prod import Prod

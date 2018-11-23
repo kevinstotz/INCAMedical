@@ -1,6 +1,6 @@
 from rest_framework_filters import FilterSet, filters
 from API.models import Template, TemplateCategory, Company, IndicatorOption, IndicatorType, Indicator, Category, \
-    SpecialtyType, AuditArea, TemplateIndicator, Audit
+    SpecialtyType, AuditArea, TemplateIndicator, Audit, Note, NoteType
 
 
 class TemplateListFilter(FilterSet):
@@ -40,6 +40,24 @@ class CompanyListFilter(FilterSet):
     class Meta:
         Model = Company
         fields = ['active', ]
+
+
+class NoteTypeDetailFilter(FilterSet):
+    active = filters.BooleanFilter()
+    id = filters.NumberFilter()
+
+    class Meta:
+        Model = Note
+        fields = ['active', 'id', ]
+
+
+class NoteTypeListFilter(FilterSet):
+    active = filters.BooleanFilter()
+    type = filters.NumberFilter()
+
+    class Meta:
+        Model = NoteType
+        fields = ['active', 'type', ]
 
 
 class IndicatorTypeListFilter(FilterSet):

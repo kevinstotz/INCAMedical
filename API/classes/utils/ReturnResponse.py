@@ -1,6 +1,4 @@
 import time
-from abc import ABCMeta
-
 from rest_framework import serializers
 
 

@@ -30,23 +30,23 @@ class Dev(Base):
     ENGINE_HOSTNAME_AND_PORT = ENGINE_HOSTNAME + ":" + str(ENGINE_PORT)
     ENGINE_HOSTNAME_URL = Globals.UNSECURE + ENGINE_HOSTNAME + ":" + str(ENGINE_PORT)
 
-    Base.ALLOWED_HOSTS.append(WEBSITE_HOSTNAME)
-    Base.ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
-    Base.ALLOWED_HOSTS.append(DASHBOARD_HOSTNAME)
+    ALLOWED_HOSTS = [WEBSITE_HOSTNAME]
+    ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
+    ALLOWED_HOSTS.append(DASHBOARD_HOSTNAME)
 
-    Base.CORS_ORIGIN_WHITELIST.append(WEBSITE_IP_ADDRESS)
-    Base.CORS_ORIGIN_WHITELIST.append(WEBSITE_HOSTNAME)
-    Base.CORS_ORIGIN_WHITELIST.append(DASHBOARD_HOSTNAME_URL)
-    Base.CORS_ORIGIN_WHITELIST.append("http://www.audits.incamedical.com:10101")
-    Base.CORS_ORIGIN_WHITELIST.append("http://www.api.incamedical.com:10101")
+    CORS_ORIGIN_WHITELIST = [WEBSITE_IP_ADDRESS]
+    CORS_ORIGIN_WHITELIST.append(WEBSITE_HOSTNAME)
+    CORS_ORIGIN_WHITELIST.append(DASHBOARD_HOSTNAME_URL)
+    CORS_ORIGIN_WHITELIST.append("http://www.audits.incamedical.com:10101")
+    CORS_ORIGIN_WHITELIST.append("http://www.api.incamedical.com:10101")
 
-    Base.CSRF_TRUSTED_ORIGINS.append(WEBSITE_HOSTNAME)
-    Base.CSRF_TRUSTED_ORIGINS.append(WEBSITE_IP_ADDRESS)
-    Base.CSRF_TRUSTED_ORIGINS.append(DASHBOARD_HOSTNAME_URL)
-    Base.CSRF_TRUSTED_ORIGINS.append("http://www.audits.incamedical.com:10101")
-    Base.CSRF_TRUSTED_ORIGINS.append("http://www.api.incamedical.com:10101")
+    CSRF_TRUSTED_ORIGINS = [WEBSITE_HOSTNAME]
+    CSRF_TRUSTED_ORIGINS.append(WEBSITE_IP_ADDRESS)
+    CSRF_TRUSTED_ORIGINS.append(DASHBOARD_HOSTNAME_URL)
+    CSRF_TRUSTED_ORIGINS.append("http://www.audits.incamedical.com:10101")
+    CSRF_TRUSTED_ORIGINS.append("http://www.api.incamedical.com:10101")
 
-    Base.DATABASES = {
+    DATABASES = {
         'default': {
             'NAME': 'incamedicalapi_dev',
             'ENGINE': 'django.db.backends.mysql',
@@ -58,7 +58,8 @@ class Dev(Base):
         },
 
     }
-
-    Base.STATICFILES_DIRS = (
-        join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web"),
+    STATIC_ROOT = "/static-dev/"
+    STATIC_ROOT = join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web", "static", "media", )
+    STATICFILES_DIRS = (
+        join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web, ""static", "media", ),
     )

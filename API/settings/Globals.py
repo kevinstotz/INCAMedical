@@ -47,12 +47,13 @@ NAME_TYPE = {
     'FULL': 8
 }
 #  Phone number Type
-PHONE_NUMBER_TYPE = {
-    'MOBILE': 1,
-    'HOME': 2,
-    'WORK': 3,
-    'AUTO': 4
-}
+MOBILE, HOME, WORK, AUTO = range(1, 5)
+PHONE_NUMBER_TYPE = (
+    (MOBILE, 'Mobile'),
+    (HOME, 'Home'),
+    (WORK, 'Work'),
+    (AUTO, 'Auto'),
+)
 #  Email Templates
 EMAIL_TEMPLATE = {
     'VERIFY': 1,
