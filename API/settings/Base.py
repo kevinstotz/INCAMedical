@@ -187,5 +187,5 @@ class Base(Configuration):
     )
 
 
-from API.settings.Dev import *
+#from API.settings.Dev import *
 from API.settings.Prod import *
