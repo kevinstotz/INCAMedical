@@ -208,7 +208,7 @@ class TemplateSerializer(ModelSerializer):
         fields = ('id', 'name', 'categories', 'indicators', 'company', 'active', )
 
     def create(self, validated_data):
-        company = Company.objects.get(pk=validated_data.get("company"))
+        company = Company.objects.get(pk=self.get_from_context("company", self.context))
         categories = Category.objects.filter(company=company, active=True)
         indicators = Indicator.objects.filter(company=company, active=True)
         template = Template.objects.create(company=company,
@@ -240,7 +240,7 @@ class TemplateSerializer(ModelSerializer):
         instance.save()
         return instance
 
-    def get_context_company(self, needle, instance):
+    def get_from_context(self, needle, instance):
         if needle in instance:
             return instance[needle]
         return None
