@@ -3,7 +3,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
-from API.settings.Base import STATICFILES_DIRS
 from API.settings.Globals import EMAIL_LENGTH, PASSWORD_LENGTH, AUDIT_AREA_NAME_LENGTH, UUID_ZERO, \
     ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH
 
@@ -220,35 +219,6 @@ class NotificationStatus(models.Model):
         ordering = ('id', )
 
 
-class Notification(models.Model):
-    id = models.AutoField(primary_key=True)
-    type = models.ForeignKey(NotificationType,
-                             on_delete=models.SET_DEFAULT,
-                             default=1,
-                             related_name="notificationType",
-                             verbose_name="Notification Type",
-                             )
-    fromUser = models.IntegerField(default=0)
-    toUser = models.IntegerField(default=0)
-    status = models.ForeignKey(NotificationStatus,
-                               on_delete=models.SET_DEFAULT,
-                               default=1,
-                               related_name="notificationStatus",
-                               verbose_name="Notification Status", )
-    message = models.IntegerField(default=0)
-    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
-    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Notification Active")
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return '%s' % self.toUser
-
-    class Meta:
-        ordering = ('id', )
-
-
 class EPAIndicator(models.Model):
     id = models.AutoField(primary_key=True)
     indicator = models.CharField(max_length=255, blank=False, unique=True)
@@ -365,17 +335,17 @@ class Company(models.Model):
         ordering = ('id', )
 
 
-class Note(models.Model):
+class NoteType(models.Model):
     id = models.AutoField(primary_key=True)
-    note = models.TextField(max_length=2000)
+    type = models.CharField(max_length=50, verbose_name="Type of Note")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Note Active")
+    active = models.BooleanField(default=True, verbose_name="Note Type Active")
 
     objects = models.Manager()
 
     def __str__(self):
-        return '%s' % self.id
+        return '%s' % self.type
 
     class Meta:
         ordering = ('id', )
@@ -465,6 +435,25 @@ class Category(models.Model):
         ordering = ('name', )
 
 
+class Image(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, default="", blank=True)
+    uploaded_name = models.CharField(max_length=255, default="", blank=True)
+    file = models.FileField(upload_to='images/', verbose_name="Image path", name="imagePath")
+    size = models.IntegerField(default=0)
+    active = models.BooleanField(default=True, verbose_name="Indicators Active")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.name
+
+    class Meta:
+        ordering = ('id', )
+
+
 class Indicators(models.Model):
     id = models.AutoField(primary_key=True)
     indicator = models.CharField(max_length=255, default="None", blank=False)
@@ -490,24 +479,6 @@ class Indicators(models.Model):
         ordering = ('id', )
 
 
-class Image(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, default="", blank=True)
-    image = models.FileField(verbose_name="Image path", name="imagePath")
-    path = models.FilePathField(path=STATICFILES_DIRS[0], match=None, recursive=False, max_length=100)
-    active = models.BooleanField(default=True, verbose_name="Indicators Active")
-    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return '%s' % self.image
-
-    class Meta:
-        ordering = ('id', )
-
-
 class Indicator(models.Model):
     id = models.AutoField(primary_key=True)
     short_name = models.CharField(max_length=50)
@@ -521,7 +492,8 @@ class Indicator(models.Model):
                              related_name="indicatorType",
                              default=1,
                              verbose_name="Indicator Type", )
-    options = models.ManyToManyField(IndicatorOption)
+    options = models.ManyToManyField(IndicatorOption, related_name='indicatorOptions')
+    images = models.ManyToManyField(Image, related_name='indicatorImages')
     name = models.TextField(max_length=2000)
     active = models.BooleanField(default=True, verbose_name="Indicators Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
@@ -829,13 +801,14 @@ class EmailAddress(models.Model):
 class Template(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, blank=False)
+
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE,
                                 default=1,
                                 related_name="templateCompany",
                                 verbose_name="Template Company", )
-    indicators = models.ManyToManyField(Indicator, through='TemplateIndicator')
-    categories = models.ManyToManyField(Category, through='TemplateCategory')
+    indicators = models.ManyToManyField(Indicator, through='TemplateIndicator', related_name='templateIndicators')
+    categories = models.ManyToManyField(Category, through='TemplateCategory', related_name='templateCategories')
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Active")
@@ -852,6 +825,77 @@ class Template(models.Model):
 
 def validate_uuid(value):
     return UUID_ZERO if value == "#" else value
+
+
+class Note(models.Model):
+    id = models.AutoField(primary_key=True)
+    note = models.TextField(max_length=2000)
+    fromUser = models.ForeignKey(CustomUser,
+                                 on_delete=models.CASCADE,
+                                 default=1,
+                                 related_name="noteFromUser",
+                                 verbose_name="Note From User", )
+    type = models.ForeignKey(NoteType,
+                             on_delete=models.SET_DEFAULT,
+                             default=1,
+                             related_name="noteType",
+                             verbose_name="Note Type", )
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Note Type")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+
+
+class UploadType(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=20, verbose_name="Type of Upload", blank=False, default="1")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Email address Type Active")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.type
+
+    class Meta:
+        ordering = ('id', )
+
+
+class Upload(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, default="", blank=True)
+    uploaded_name = models.CharField(max_length=255, default="", blank=True)
+    file = models.FileField(upload_to='images/', verbose_name="Upload path", name="uploadPath")
+    size = models.IntegerField(default=0)
+    fromUser = models.ForeignKey(CustomUser,
+                                 on_delete=models.CASCADE,
+                                 default=1,
+                                 related_name="uploadFromUser",
+                                 verbose_name="Upload From User", )
+    type = models.ForeignKey(UploadType,
+                             on_delete=models.SET_DEFAULT,
+                             default=1,
+                             related_name="uploadType",
+                             verbose_name="Upload Type")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Active Upload")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
 
 
 class TemplateIndicator(models.Model):
@@ -872,7 +916,14 @@ class TemplateIndicator(models.Model):
                                   related_name="templateIndicatorIndicator",
                                   default=1,
                                   verbose_name="Template Indicator Indicator", )
-    images = models.ManyToManyField(Image)
+    indicator_option = models.ForeignKey(IndicatorOption,
+                                         on_delete=models.CASCADE,
+                                         default=1,
+                                         related_name="templateIndicatorSelectedOption",
+                                         verbose_name="Template Indicator Selected Option", )
+    notes = models.ManyToManyField(Note, related_name='templateIndicatorNotes')
+    images = models.ManyToManyField(Image, related_name='templateIndicaotrImages')
+    uploads = models.ManyToManyField(Upload, related_name='templateIndicatorUploads')
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Indicator Active")
@@ -904,7 +955,6 @@ class TemplateCategory(models.Model):
                                  related_name="templateCategoryCategory",
                                  default=1,
                                  verbose_name="Template Category Category", )
-
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Category Active")
@@ -939,6 +989,38 @@ class Audit(models.Model):
 
     def __str__(self):
         return '%s' % self.name
+
+    class Meta:
+        ordering = ('id', )
+
+
+class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.ForeignKey(NotificationType,
+                             on_delete=models.SET_DEFAULT,
+                             default=1,
+                             related_name="notificationType",
+                             verbose_name="Notification Type",
+                             )
+    fromUser = models.ForeignKey(CustomUser,
+                                 on_delete=models.SET_DEFAULT,
+                                 default=1,
+                                 related_name="notificationFromUser",
+                                 verbose_name="Notification From User", )
+    toUser = models.IntegerField(default=0)
+    status = models.ForeignKey(NotificationStatus,
+                               on_delete=models.SET_DEFAULT,
+                               default=1,
+                               related_name="notificationStatus",
+                               verbose_name="Notification Status", )
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Notification Active")
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
 
     class Meta:
         ordering = ('id', )
