@@ -58,6 +58,7 @@ class Dev(Base):
         },
 
     }
+
     STATIC_ROOT = "/static-dev/"
     STATIC_ROOT = join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web", "static", "media", )
     STATICFILES_DIRS = (

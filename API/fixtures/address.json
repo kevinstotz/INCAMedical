@@ -1,1 +1,1 @@
-[{"model": "API.address", "pk": 1, "fields": {"address1": "82", "address2": "Webb", "address3": "Street", "unit": "2R", "type": 1, "zipcode": 01970, "city": 4184, "state": 3944, "country": 232, "updated": "2018-11-08T20:38:45.489Z", "created": "2018-11-13T14:30:05.160Z", "active": true}}]
+[{"model": "API.address", "pk": 1, "fields": {"address1": "82", "address2": "Webb", "address3": "Street", "unit": "2R", "type": 1, "zipcode": "01970", "city": 4184, "state": 3944, "country": 232, "updated": "2018-11-08T20:38:45.489Z", "created": "2018-11-13T14:30:05.160Z", "active": true}}]
