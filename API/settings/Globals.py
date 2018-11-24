@@ -10,6 +10,7 @@ UNSECURE = 'http://'
 SECRET_KEY = '(tlbv7h$1t9tono86(4w%aat9@%6*^#s7q)f1hojg#v8f&16ig'
 
 # Email settings
+TEMPLATE_COMPANY = 0
 PASSWORD_LENGTH = 64
 EMAIL_TIMEOUT = 10
 EMAIL_LENGTH = 100

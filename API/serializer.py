@@ -1,5 +1,5 @@
 import logging
-from API.settings.Globals import UUID_ZERO
+from API.settings.Globals import UUID_ZERO, TEMPLATE_COMPANY
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField
 from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, Image, Upload, \
     CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, Note, NoteType, \
@@ -336,7 +336,16 @@ class CompanySerializer(ModelSerializer):
 
     def create(self, validated_data):
         user_profile = 1
-        return Company.objects.create(user_profile=UserProfile.objects.get(pk=user_profile), **validated_data)
+        company = Company.objects.create(user_profile=UserProfile.objects.get(pk=user_profile), **validated_data)
+
+        template_company = Company.objects.get(pk=TEMPLATE_COMPANY)
+        for indicator_type in IndicatorType.objects.filter(company=template_company, active=True):
+            IndicatorType.objects.create(type=indicator_type.type, company=company)
+
+        for indicator_option in IndicatorOption.objects.filter(company=template_company, active=True):
+            IndicatorOption.objects.create(option=indicator_option.option, company=company)
+
+        return company
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
