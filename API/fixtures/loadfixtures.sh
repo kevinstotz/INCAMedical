@@ -18,6 +18,7 @@ $PYTHON manage.py loaddata specialtytype.json
 $PYTHON manage.py loaddata clinictype.json
 $PYTHON manage.py loaddata category.json
 $PYTHON manage.py loaddata indicatortype.json
+$PYTHON manage.py loaddata indicatoroption.json
 $PYTHON manage.py loaddata indicator.json
 $PYTHON manage.py loaddata template.json
 $PYTHON manage.py loaddata templatecategory.json
