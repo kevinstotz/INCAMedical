@@ -353,7 +353,7 @@ class NoteType(models.Model):
 
 class IndicatorOption(models.Model):
     id = models.AutoField(primary_key=True)
-    option = models.CharField(max_length=50, blank=False, unique=True)
+    option = models.CharField(max_length=50, blank=False)
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE,
                                 default=1,
@@ -370,6 +370,7 @@ class IndicatorOption(models.Model):
 
     class Meta:
         ordering = ('id', )
+        unique_together = ("company", "option")
 
 
 class IndicatorType(models.Model):
