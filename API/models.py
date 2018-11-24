@@ -374,7 +374,7 @@ class IndicatorOption(models.Model):
 
 class IndicatorType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=50, blank=False, unique=True)
+    type = models.CharField(max_length=50, blank=False)
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE,
                                 default=1,
@@ -391,6 +391,7 @@ class IndicatorType(models.Model):
 
     class Meta:
         ordering = ('id', )
+        unique_together = ("company", "type")
 
 
 class SpecialtyType(models.Model):
