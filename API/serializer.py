@@ -16,7 +16,7 @@ class IndexSerializer(ModelSerializer):
 
     class Meta:
         model = Index
-        fields = ('__all__', )
+        fields = '__all__'
 
 
 class CategorySerializer(ModelSerializer):

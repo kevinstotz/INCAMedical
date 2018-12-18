@@ -24,6 +24,7 @@ class Prod(Base):
     Base.ALLOWED_HOSTS.append(WEBSITE_HOSTNAME)
     Base.ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
     Base.ALLOWED_HOSTS.append("52.25.200.16")
+    Base.ALLOWED_HOSTS.append("*")
     STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
     # URL prefix for static files.
     # Example: "http://media.lawrence.com/static/"

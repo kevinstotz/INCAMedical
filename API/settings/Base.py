@@ -178,6 +178,5 @@ class Base(Configuration):
     # Example: "/home/media/media.lawrence.com/static/"
 
 
-from API.settings.Dev import Dev
-#
-# from API.settings.Prod import Prod
+# from API.settings.Dev import Dev
+from API.settings.Prod import Prod
