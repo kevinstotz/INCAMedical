@@ -7,9 +7,9 @@ from API.classes.utils import ReturnResponse
 from API.filters.filters import TemplateListFilter, TemplateCategoryListFilter, CompanyListFilter, CategoryListFilter, \
     IndicatorOptionListFilter, IndicatorListFilter, IndicatorTypeListFilter, SpecialtyTypeListFilter, AuditListFilter, \
     TemplateIndicatorListFilter, AuditAreaListFilter, AuditDetailFilter
-from API.serializer import CompanySerializer, AuditAreaSerializer, ClinicTypeSerializer, SpecialtyTypeSerializer, \
+from API.serializer import CompanySerializer, AuditAreaListSerializer, ClinicTypeSerializer, SpecialtyTypeSerializer, \
     TemplateListSerializer, CategorySerializer, IndicatorSerializer, TemplateCategorySerializer, ImageSerializer, \
-    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditDetailSerializer, IndexSerializer, \
+    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditDetailSerializer, IndexSerializer, AuditAreaDetailSerializer, \
     NoteTypeSerializer, NoteSerializer, AuditListSerializer, TemplateIndicatorDetailSerializer, AuditCreateSerializer, \
     TemplateCategoryDetailSerializer, UploadSerializer, TemplateDetailSerializer, IndicatorTypeSerializer, \
     IndicatorCreateSerializer, TemplateCreateSerializer, AuditIndicatorOptionSerializer, AuditIndicatorUploadSerializer, \
@@ -543,7 +543,7 @@ class ClinicTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 class AuditAreaList(generics.ListCreateAPIView):
     model = AuditArea
     queryset = AuditArea.objects.filter(disabled=False).order_by('name')
-    serializer_class = AuditAreaSerializer
+    serializer_class = AuditAreaListSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
@@ -551,7 +551,7 @@ class AuditAreaList(generics.ListCreateAPIView):
 
     def put(self, request):
 
-        audit_area = AuditAreaSerializer(data=request.data, context={"manager": request.data.pop("manager"),
+        audit_area = AuditAreaListSerializer(data=request.data, context={"manager": request.data.pop("manager"),
                                                                      "director": request.data.pop("director"),
                                                                      "phone": request.data.pop("phone")})
 
@@ -573,25 +573,23 @@ class AuditAreaList(generics.ListCreateAPIView):
 class AuditAreaDetail(generics.RetrieveUpdateDestroyAPIView):
     model = AuditArea
     queryset = AuditArea.objects.filter(disabled=False)
-    serializer_class = AuditAreaSerializer
+    serializer_class = AuditAreaDetailSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
 
     def update(self, request, *args, **kwargs):
-        audit_area = AuditArea.objects.get(pk=self.kwargs['pk'])
-        context = request.data
-        serializer = AuditAreaSerializer(audit_area, data=request.data, partial=True, context=context)
+        audit_area = AuditAreaDetailSerializer(self.get_object(), data=request.data, partial=True)
         try:
-            serializer.is_valid(raise_exception=True)
-            serializer = serializer.save()
+            audit_area.is_valid(raise_exception=True)
+            audit_area = audit_area.save()
         except ValidationError as error:
             result = '{0}:'.format(error)
-            logger.error("SerializeR Error: {0}: error:{1}".format(serializer.errors, result))
+            logger.error("SerializeR Error: {0}: error:{1}".format(audit_area.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Audit Area Already Exists', result).return_json(),
                             status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(ReturnResponse.Response(0, __name__, serializer.id, "success").return_json(),
+        return Response(ReturnResponse.Response(0, __name__, audit_area.id, "success").return_json(),
                         status=status.HTTP_201_CREATED)
 
     def post(self, request):
