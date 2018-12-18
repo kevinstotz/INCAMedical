@@ -1,14 +1,1 @@
-[{
-	"model": "API.template",
-	"pk": 1,
-	"fields": {
-		"name": "Template 1",
-		"company": 1,
-		"updated": "2018-11-13T03:26:24.122Z",
-		"created": "2018-11-13T14:30:08.954Z",
-		"active": true,
-		"disabled": false,
-		"creator": 1,
-		"owner": 1
-	}
-}]
+[]
