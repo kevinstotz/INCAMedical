@@ -1,16 +1,1 @@
-[{
-	"model": "API.audit",
-	"pk": 1,
-	"fields": {
-		"name": "Audit Name",
-		"area": 1,
-		"company": 1,
-		"template": 8,
-		"updated": "2018-11-13T00:00:00Z",
-		"created": "2018-11-13T14:30:05.492Z",
-		"active": true,
-		"disabled": false,
-		"creator": 1,
-		"owner": 1
-	}
-}]
+[]

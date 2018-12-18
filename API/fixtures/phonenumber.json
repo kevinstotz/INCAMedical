@@ -12,4 +12,18 @@
 		"creator": 1,
 		"owner": 1
 	}
+},{
+	"model": "API.phonenumber",
+	"pk": 2,
+	"fields": {
+		"phone_number": "8880001111",
+		"country": 1,
+		"type": 1,
+		"updated": "2018-11-12T02:49:04.028Z",
+		"created": "2018-11-13T14:30:08.568Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
 }]

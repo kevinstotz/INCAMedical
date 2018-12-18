@@ -465,7 +465,45 @@ class SpecialtyTypeSerializer(ModelSerializer):
         return specialty_type
 
 
-class AuditAreaSerializer(ModelSerializer):
+class AuditAreaDetailSerializer(ModelSerializer):
+    director = PersonNameSerializer()
+    manager = PersonNameSerializer()
+    phone = PhoneNumberSerializer()
+
+    class Meta:
+        model = AuditArea
+        read_only_fields = ('id', 'created', )
+        fields = ('id', 'name', 'present_on_rounds', 'company', 'director',
+                  'manager', 'phone', 'specialty_type', 'clinic_type', )
+
+    def update(self, instance, validated_data):
+        instance.specialty_type = validated_data.get('specialty_type', instance.specialty_type)
+        instance.clinic_type = validated_data.get('clinic_type', instance.clinic_type)
+        instance.name = validated_data.get('name', instance.name)
+        instance.present_on_rounds = validated_data.get('present_on_rounds', instance.present_on_rounds)
+        instance.save()
+
+        director = PersonName.objects.get(pk=instance.director.pk)
+        director.name = validated_data.get("director", instance.director)['name']
+        director.save()
+        manager = PersonName.objects.get(pk=instance.manager.pk)
+        manager.name = validated_data.get("manager", instance.manager)['name']
+        manager.save()
+        phone = PhoneNumber.objects.get(pk=instance.phone.pk)
+        phone.phone_number = validated_data.get("phone", instance.phone)['phone_number']
+        phone.save()
+
+        return instance
+
+    @staticmethod
+    def getContextItem(needle, instance):
+        try:
+            return instance[needle]
+        except KeyError:
+            return None
+
+
+class AuditAreaListSerializer(ModelSerializer):
     director = SerializerMethodField()
     manager = SerializerMethodField()
     phone = SerializerMethodField()
@@ -516,24 +554,10 @@ class AuditAreaSerializer(ModelSerializer):
         except director.ValidationError as error:
             print(error)
 
-        return AuditArea.objects.create(phone=phone, manager=manager, director=director, **validated_data)
-
-    def update(self, instance, validated_data):
-        instance.specialty_type = SpecialtyType.objects.get(pk=self.getContextItem("specialty_type", self.context))
-        instance.clinic_type = ClinicType.objects.get(pk=self.getContextItem("clinic_type", self.context))
-        director = PersonName.objects.get(pk=instance.director.pk)
-        director.name = self.getContextItem("director", self.context)['name']
-        director.save()
-        manager = PersonName.objects.get(pk=instance.manager.pk)
-        manager.name = self.getContextItem("manager", self.context)['name']
-        manager.save()
-        phone = PhoneNumber.objects.get(pk=instance.phone.pk)
-        phone.phone_number = self.getContextItem("phone", self.context)['phone_number']
-        phone.save()
-        instance.name = validated_data.get('name', instance.name)
-        instance.present_on_rounds = validated_data.get('present_on_rounds', instance.present_on_rounds)
-        instance.save()
-        return instance
+        return AuditArea.objects.create(phone=phone,
+                                        manager=manager,
+                                        director=director,
+                                        **validated_data)
 
     @staticmethod
     def getContextItem(needle, instance):
@@ -670,7 +694,7 @@ class AuditDetailSerializer(ModelSerializer):
         return instance.template.indicators.through.objects.values('indicator_options').order_by('indicator_options').annotate(count=Count('indicator_options'))
 
     def get_area(self, instance):
-        serializer = AuditAreaSerializer(instance.area)
+        serializer = AuditAreaDetailSerializer(instance.area)
         return serializer.data
 
     def update(self, instance, validated_data):
@@ -692,7 +716,7 @@ class AuditListSerializer(ModelSerializer):
         return instance.area.company.name
 
     def get_area(self, instance):
-        serializer = AuditAreaSerializer(instance.area)
+        serializer = AuditAreaListSerializer(instance.area)
         return serializer.data
 
     def get_scores(self, instance):
