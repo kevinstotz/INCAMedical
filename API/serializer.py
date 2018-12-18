@@ -16,7 +16,7 @@ class IndexSerializer(ModelSerializer):
 
     class Meta:
         model = Index
-        fields = ('__all__', )
+        fields = '__all__'
 
 
 class CategorySerializer(ModelSerializer):
@@ -482,7 +482,7 @@ class AuditAreaDetailSerializer(ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.present_on_rounds = validated_data.get('present_on_rounds', instance.present_on_rounds)
         instance.save()
-        
+
         director = PersonName.objects.get(pk=instance.director.pk)
         director.name = validated_data.get("director", instance.director)['name']
         director.save()
