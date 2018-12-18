@@ -1,1 +1,20 @@
-[{"model": "API.auditarea", "pk": 4, "fields": {"name": "area 1", "clinic_type": 3, "specialty_type": 1, "company": 1, "director": 9, "manager": 10, "phone": 4, "present_on_rounds": "Kevin", "updated": "2018-11-12T02:52:53Z", "created": "2018-11-13T14:30:05.644Z", "active": true}}]
+[{
+	"model": "API.auditarea",
+	"pk": 1,
+	"fields": {
+		"name": "area 1",
+		"clinic_type": 1,
+		"specialty_type": 1,
+		"company": 1,
+		"director": 1,
+		"manager": 1,
+		"phone": 1,
+		"present_on_rounds": "Kevin",
+		"updated": "2018-11-12T02:52:53Z",
+		"created": "2018-11-13T14:30:05.644Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}]

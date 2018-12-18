@@ -25,13 +25,15 @@ from API.views.company.views import IndexView, \
     ClinicTypeList, ClinicTypeDetail, \
     TemplateList, TemplateDetail, TemplateCreate, \
     CategoryList, CategoryDetail, \
-    IndicatorList, IndicatorDetail, \
+    IndicatorList, IndicatorDetail, IndicatorCreate, \
     IndicatorTypeList, IndicatorTypeDetail, \
     IndicatorOptionList, IndicatorOptionDetail, \
     TemplateCategoryList, TemplateIndicatorList, \
     TemplateCategoryDetail, TemplateIndicatorDetail, \
     AuditList, AuditCreate, AuditDetail, \
-    NoteTypeList, NoteDetail, ImageUpload, AuditImageUpload
+    NoteTypeList, NoteDetail, IndicatorImageUpload, \
+    AuditIndicatorImageUpload, AuditIndicatorNoteDetail, \
+    AuditIndicatorOptionDetail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -45,15 +47,17 @@ urlpatterns = [
     path(r'api/v1/company/<int:pk>/', CompanyDetail.as_view(), name="companyDetail"),
 
     path(r'api/v1/indicator-type/', IndicatorTypeList.as_view(), name="indicatorTypeList"),
-    path(r'api/v1/indicator-type<int:pk>//', IndicatorTypeDetail.as_view(), name="indicatorTypeDetail"),
+    path(r'api/v1/indicator-type<int:pk>/', IndicatorTypeDetail.as_view(), name="indicatorTypeDetail"),
 
     path(r'api/v1/indicator-option/', IndicatorOptionList.as_view(), name="indicatorOptionList"),
     path(r'api/v1/indicator-option/<int:pk>/', IndicatorOptionDetail.as_view(), name="indicatorOptionDetail"),
 
     path(r'api/v1/clinic-type/', ClinicTypeList.as_view(), name="clinicTypeList"),
+    path(r'api/v1/clinic-type/create/', ClinicTypeList.as_view(), name="clinicTypeCreate"),
     path(r'api/v1/clinic-type/<int:pk>/', ClinicTypeDetail.as_view(), name="clinicTypeDetail"),
 
     path(r'api/v1/specialty-type/', SpecialtyTypeList.as_view(), name="specialtyTypeList"),
+    path(r'api/v1/specialty-type/create/', SpecialtyTypeList.as_view(), name="specialtyTypeCreate"),
     path(r'api/v1/specialty-type/<int:pk>/', SpecialtyTypeDetail.as_view(), name="specialtyTypeDetail"),
 
     path(r'api/v1/audit-area/', AuditAreaList.as_view(), name="auditAreaList"),
@@ -66,13 +70,15 @@ urlpatterns = [
     path(r'api/v1/category/', CategoryList.as_view(), name="categoryList"),
     path(r'api/v1/category/<int:pk>/', CategoryDetail.as_view(), name="categoryDetail"),
 
+    path(r'api/v1/audit-indicator-note/<int:pk>/audit/<int:audit>/', AuditIndicatorNoteDetail.as_view(), name="auditIndicatorNoteDetail"),
     path(r'api/v1/note-type/', NoteTypeList.as_view(), name="noteTypeList"),
     path(r'api/v1/note/', NoteDetail.as_view(), name="note"),
 
-    path(r'api/v1/image-upload/', ImageUpload.as_view(), name="imageUpload"),
-    path(r'api/v1/audit-image-upload/<int:pk>/', AuditImageUpload.as_view(), name="auditImageUpload"),
+    path(r'api/v1/image-upload/<int:pk>/', IndicatorImageUpload.as_view(), name="indicatorImageUpload"),
+    path(r'api/v1/audit-image-upload/<int:pk>/audit/<int:audit>/', AuditIndicatorImageUpload.as_view(), name="auditIndicatorImageUpload"),
 
     path(r'api/v1/indicator/', IndicatorList.as_view(), name="indicatorList"),
+    path(r'api/v1/indicator/create/', IndicatorCreate.as_view(), name="indicatorCreate"),
     path(r'api/v1/indicator/<int:pk>/', IndicatorDetail.as_view(), name="indicatorDetail"),
 
     path(r'api/v1/template-category/', TemplateCategoryList.as_view(), name="templateCategoryList"),
@@ -81,9 +87,12 @@ urlpatterns = [
     path(r'api/v1/template-indicator/', TemplateIndicatorList.as_view(), name="templateIndicatorList"),
     path(r'api/v1/template-indicator/<int:pk>/', TemplateIndicatorDetail.as_view(), name="templateIndicatorDetail"),
 
-    path(r'api/v1/audit/', AuditList.as_view(), name="auditsAuditList"),
+    path(r'api/v1/audit-indicator-option/audit/<int:audit>/indicator/<int:indicator>/', AuditIndicatorOptionDetail.as_view(), name="auditIndicatorOptionDetail"),
+
     path(r'api/v1/audit/create/', AuditCreate.as_view(), name="auditsAuditCreate"),
+    path(r'api/v1/audit/', AuditList.as_view(), name="auditsAuditList"),
     path(r'api/v1/audit/<int:pk>/', AuditDetail.as_view(), name="auditsAuditDetail"),
  ] + static(Base.MEDIA_URL, document_root=Base.MEDIA_ROOT)
+
 #  static(Base.STATIC_URL, document_root=Base.STATIC_ROOT) +
 urlpatterns = format_suffix_patterns(urlpatterns)

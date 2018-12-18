@@ -1,48 +1,55 @@
 import logging
-from rest_framework import serializers
+from rest_framework import mixins
 from API.models import Company, AuditArea, ClinicType, SpecialtyType, Template, Category, Indicator, TemplateCategory, \
-    IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index, NoteType, Note, Image, Upload
+    IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index, NoteType, Note, Image, Upload, UploadType, \
+    AuditIndicatorOption, AuditIndicatorUpload, AuditIndicatorNote
 from API.classes.utils import ReturnResponse
 from API.filters.filters import TemplateListFilter, TemplateCategoryListFilter, CompanyListFilter, CategoryListFilter, \
     IndicatorOptionListFilter, IndicatorListFilter, IndicatorTypeListFilter, SpecialtyTypeListFilter, AuditListFilter, \
-    TemplateIndicatorListFilter, AuditAreaListFilter
+    TemplateIndicatorListFilter, AuditAreaListFilter, AuditDetailFilter
 from API.serializer import CompanySerializer, AuditAreaSerializer, ClinicTypeSerializer, SpecialtyTypeSerializer, \
-    TemplateSerializer, CategorySerializer, IndicatorSerializer, TemplateCategorySerializer, IndicatorTypeSerializer, \
-    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditSerializer, IndexSerializer, AuditListSerializer, \
-    NoteTypeSerializer, NoteSerializer, ImageSerializer, TemplateIndicatorDetailSerializer, \
-    TemplateCategoryDetailSerializer
-from django.core import serializers
+    TemplateListSerializer, CategorySerializer, IndicatorSerializer, TemplateCategorySerializer, ImageSerializer, \
+    IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditDetailSerializer, IndexSerializer, \
+    NoteTypeSerializer, NoteSerializer, AuditListSerializer, TemplateIndicatorDetailSerializer, AuditCreateSerializer, \
+    TemplateCategoryDetailSerializer, UploadSerializer, TemplateDetailSerializer, IndicatorTypeSerializer, \
+    IndicatorCreateSerializer, TemplateCreateSerializer, AuditIndicatorOptionSerializer, AuditIndicatorUploadSerializer, \
+    AuditIndicatorNoteSerializer
+from API.settings.Globals import DEFAULT_USER, PROJECT_DIR
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from rest_framework_json_api import renderers
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.parsers import JSONParser, MultiPartParser, FileUploadParser, FormParser
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework import generics, status
 import json
+from os.path import join
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s (%(threadName)-2s) %(message)s', )
 logger = logging.getLogger(__name__)
 
 
-class ImageUpload(generics.CreateAPIView):
+class IndicatorImageUpload(generics.RetrieveUpdateAPIView):
     permission_classes = (AllowAny,)
-    serializer_class = ImageSerializer
+    serializer_class = IndicatorSerializer
     parser_classes = (MultiPartParser, FormParser, )
-    queryset = Image.objects.all()
-    model = Image
+    queryset = Indicator.objects.all()
+    model = Indicator
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, pk):
         image = ImageSerializer(data=request.data)
 
         try:
             image.is_valid(raise_exception=ValueError)
             image.save()
-        except Exception as e:
-            print('{0}'.format(e))
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
             return Response(ReturnResponse.Response(1, __name__, 'Image failed to create', "failed").return_json(),
                             status=status.HTTP_400_BAD_REQUEST)
-        indicator = Indicator.objects.get(pk=self.request.data['id'])
+        indicator = self.get_object()
         indicator.images.add(image.instance)
         indicator.save()
 
@@ -52,30 +59,74 @@ class ImageUpload(generics.CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class AuditImageUpload(generics.UpdateAPIView):
+class AuditIndicatorNoteDetail(generics.RetrieveUpdateAPIView):
     permission_classes = (AllowAny,)
-    serializer_class = TemplateIndicatorSerializer
+    serializer_class = TemplateIndicatorDetailSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    queryset = TemplateIndicator.objects.all()
+    model = TemplateIndicator
+
+    def update(self, request, *args, **kwargs):
+
+        notes = request.data.pop("notes")
+        note = Note.objects.create(note=notes['note'],
+                                   type=NoteType.objects.get(pk=notes['type']),
+                                   creator=DEFAULT_USER)
+
+        audit_indicator_note = AuditIndicatorNote.objects.create(audit=Audit.objects.get(pk=request.data['audit']),
+                                                                 note=note,
+                                                                 indicator=self.get_object())
+
+        return Response(ReturnResponse.Response(0, __name__, audit_indicator_note.pk, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
+
+
+class AuditIndicatorImageUpload(generics.RetrieveUpdateAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = UploadSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, MultiPartParser, FormParser, )
-    queryset = Upload.objects.all()
-    model = Upload
+    queryset = TemplateIndicator.objects.all()
+    model = TemplateIndicator
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, pk, audit):
+
         file_upload_obj = request.data['fileToUpload']
-        fs = FileSystemStorage()
+        file_upload_type = ""
         upload = ""
-        try:
-            filename = fs.save(file_upload_obj.name, file_upload_obj)
-            upload = Upload.objects.create(name=filename, uploaded_name=file_upload_obj.name, size=file_upload_obj.size)
-            template_indicator = TemplateIndicator.objects.get(pk=self.kwargs['pk'])
-            template_indicator.uploads.add(upload)
-            upload = Upload.objects.filter(pk=upload.id)
-        except Exception as e:
-            print(e)
 
-        data = serializers.serialize('json', upload)
-        return Response(ReturnResponse.Response(0, __name__, data, "success").return_json(),
-                        status=status.HTTP_201_CREATED)
+        for upload_type in UploadType.objects.all():
+            file_upload_type = upload_type
+            if upload_type.type == file_upload_obj.name.split(".")[-1].lower():
+                file_upload_type = upload_type
+                break
+        fs = FileSystemStorage()
+
+        try:
+            filename = fs.save(join(PROJECT_DIR, "media", "images", file_upload_obj.name), file_upload_obj)
+            upload = Upload.objects.create(name=filename,
+                                           uploaded_name=file_upload_obj.name,
+                                           size=file_upload_obj.size,
+                                           type=file_upload_type)
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+            return Response(ReturnResponse.Response(1, __name__, 'Indicator Option Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            audit_indicator_upload = AuditIndicatorUpload.objects.create(audit=Audit.objects.get(pk=audit),
+                                                                         upload=upload,
+                                                                         indicator=self.get_object())
+
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+            return Response(ReturnResponse.Response(1, __name__, 'Indicator Option Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, audit_indicator_upload , "success").return_json(), status=status.HTTP_201_CREATED)
 
 
 class IndexView(generics.ListAPIView):
@@ -91,7 +142,7 @@ class IndicatorTypeList(generics.ListAPIView):
     serializer_class = IndicatorTypeSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = IndicatorType.objects.all().order_by('type')
+    queryset = IndicatorType.objects.filter(disabled=False).order_by('type')
     filter_class = IndicatorTypeListFilter
 
 
@@ -100,16 +151,32 @@ class IndicatorTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = IndicatorTypeSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = IndicatorType.objects.all()
+    queryset = IndicatorType.objects.filter(disabled=False)
 
 
-class IndicatorOptionList(generics.ListAPIView):
+class IndicatorOptionList(generics.ListCreateAPIView):
     model = IndicatorOption
     serializer_class = IndicatorOptionSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = IndicatorOption.objects.all().order_by('option')
+    queryset = IndicatorOption.objects.filter(disabled=False).order_by('option')
     filter_class = IndicatorOptionListFilter
+
+    def put(self, request):
+        indicator_option = IndicatorOptionSerializer(data=request.data, partial=True)
+
+        try:
+            indicator_option.is_valid(raise_exception=True)
+            indicator_option = indicator_option.save()
+
+        except ValidationError as error:
+            result = '{0}:'.format(error)
+            logger.error("SerializeR Error: {0}: error:{1}".format(indicator_option.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Indicator Option Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, indicator_option.pk, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
 
 
 class IndicatorOptionDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -117,7 +184,8 @@ class IndicatorOptionDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = IndicatorOptionSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = IndicatorOption.objects.all()
+    queryset = IndicatorOption.objects.filter(disabled=False)
+    filter_class = IndicatorOptionListFilter
 
 
 class TemplateIndicatorList(generics.ListAPIView):
@@ -125,7 +193,7 @@ class TemplateIndicatorList(generics.ListAPIView):
     serializer_class = TemplateIndicatorSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = TemplateIndicator.objects.all()
+    queryset = TemplateIndicator.objects.filter(disabled=False)
     filter_class = TemplateIndicatorListFilter
 
 
@@ -134,28 +202,27 @@ class TemplateCategoryList(generics.ListAPIView):
     serializer_class = TemplateCategorySerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = TemplateCategory.objects.all().order_by('category__name')
+    queryset = TemplateCategory.objects.filter(disabled=False).order_by('category_source__parent')
     filter_class = TemplateCategoryListFilter
 
 
-class IndicatorList(generics.ListCreateAPIView):
+class IndicatorCreate(generics.CreateAPIView):
     model = Indicator
-    queryset = Indicator.objects.all().order_by('name')
-    serializer_class = IndicatorSerializer
+    queryset = Indicator.objects.filter(disabled=False).order_by('name')
+    serializer_class = IndicatorCreateSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
     filter_class = IndicatorListFilter
 
     def put(self, request):
-        data = request.data
-        company = data.pop("company")
-        indicator = IndicatorSerializer(data=request.data, context={"company": company})
+        indicator = IndicatorSerializer(data=request.data, partial=True)
 
         try:
             indicator.is_valid(raise_exception=True)
             indicator = indicator.save()
-        except serializers.ValidationError as error:
+
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(indicator.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Indicator Already Exists', result).return_json(),
@@ -165,18 +232,49 @@ class IndicatorList(generics.ListCreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
+class IndicatorList(generics.ListAPIView):
+    model = Indicator
+    queryset = Indicator.objects.filter(disabled=False).order_by('name')
+    serializer_class = IndicatorSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    permission_classes = (AllowAny, )
+    filter_class = IndicatorListFilter
+
+
 class IndicatorDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Indicator
     serializer_class = IndicatorSerializer
     renderer_classes = (renderers.JSONRenderer, )
-    parser_classes = (JSONParser, FileUploadParser, )
+    parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = Indicator.objects.all()
+    queryset = Indicator.objects.filter(disabled=False)
+
+    def update(self, request, *args, **kwargs):
+        serializer = IndicatorSerializer(instance=self.get_object(),
+                                         data=request.data,
+                                         partial=True,
+                                         read_only=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+            result = '{0}:'.format(e)
+            print(result)
+            result = '{0}:'.format(e)
+            logger.error("SerializeR Error: {0}: error: {1}".format(serializer.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Indicator Already Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, serializer.validated_data, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
 
 
 class CategoryList(generics.ListCreateAPIView):
     model = Category
-    queryset = Category.objects.all().order_by('name')
+    queryset = Category.objects.filter(disabled=False).order_by('name')
     serializer_class = CategorySerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -184,13 +282,11 @@ class CategoryList(generics.ListCreateAPIView):
     filter_class = CategoryListFilter
 
     def put(self, request):
-        data = request.data
-        company = data.pop("company")
-        category = CategorySerializer(data=request.data, context={"company": company})
+        category = CategorySerializer(data=request.data)
         try:
             category.is_valid(raise_exception=True)
             category = category.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(category.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Category Already Exists', result).return_json(),
@@ -206,26 +302,25 @@ class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = Category.objects.all()
+    queryset = Category.objects.filter(disabled=False)
 
 
 class TemplateCreate(generics.CreateAPIView):
     model = Template
-    queryset = Template.objects.all()
-    serializer_class = TemplateSerializer
+    queryset = Template.objects.filter(disabled=False)
+    serializer_class = TemplateCreateSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
 
     def put(self, request):
-        data = request.data
-        company = data.pop("company")
-        template = TemplateSerializer(data=request.data, context=company)
+
+        template = TemplateCreateSerializer(data=request.data)
 
         try:
             template.is_valid(raise_exception=True)
             template = template.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(template.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Template Already Exists', result).return_json(),
@@ -237,7 +332,7 @@ class TemplateCreate(generics.CreateAPIView):
 
 class NoteDetail(generics.ListCreateAPIView):
     model = Note
-    queryset = Note.objects.all()
+    queryset = Note.objects.filter(disabled=False)
     serializer_class = NoteSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -245,14 +340,13 @@ class NoteDetail(generics.ListCreateAPIView):
 
     def put(self, request):
         data = request.data
-        print(data)
         company = data.pop("company")
         note = NoteSerializer(data=request.data, context=company)
 
         try:
             note.is_valid(raise_exception=True)
             note = note.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(note.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Note Failed', result).return_json(),
@@ -264,8 +358,8 @@ class NoteDetail(generics.ListCreateAPIView):
 
 class TemplateList(generics.ListAPIView):
     model = Template
-    queryset = Template.objects.all().order_by('name')
-    serializer_class = TemplateSerializer
+    queryset = Template.objects.filter(disabled=False).order_by('name')
+    serializer_class = TemplateListSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
@@ -274,12 +368,12 @@ class TemplateList(generics.ListAPIView):
     def put(self, request):
         data = request.data
         company = data.pop("company")
-        template = TemplateSerializer(data=request.data, context={"company": company})
+        template = TemplateListSerializer(data=request.data, context={"company": company})
 
         try:
             template.is_valid(raise_exception=True)
             template = template.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(template.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Template Already Exists', result).return_json(),
@@ -291,34 +385,52 @@ class TemplateList(generics.ListAPIView):
 
 class TemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Template
-    serializer_class = TemplateSerializer
+    serializer_class = TemplateDetailSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
-    queryset = Template.objects.filter(active=True)
+    queryset = Template.objects.filter(disabled=False)
+
+    def patch(self, request, *args, **kwargs):
+
+        template = TemplateDetailSerializer(self.get_object(), data=request.data, partial=True)
+
+        try:
+            template.is_valid(raise_exception=True)
+            template = template.save()
+        except ValidationError as error:
+            result = '{0}:'.format(error)
+            logger.error("SerializeR Error: {0}: error:{1}".format(template.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Template Already Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, template.pk, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
 
 
 class SpecialtyTypeList(generics.ListCreateAPIView):
     model = SpecialtyType
-    queryset = SpecialtyType.objects.all().order_by('type')
+    queryset = SpecialtyType.objects.filter(disabled=False).order_by('type')
     serializer_class = SpecialtyTypeSerializer
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
     filter_class = SpecialtyTypeListFilter
+    filter_fields = ('company', )
 
 
 class SpecialtyTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     model = SpecialtyType
-    queryset = SpecialtyType.objects.all()
+    queryset = SpecialtyType.objects.filter(disabled=False)
     serializer_class = SpecialtyTypeSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
+    filter_fields = ('company', )
 
 
 class AuditList(generics.ListAPIView):
     model = Audit
-    queryset = Audit.objects.all().order_by('created')
+    queryset = Audit.objects.filter(disabled=False).order_by('created')
     serializer_class = AuditListSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -326,27 +438,48 @@ class AuditList(generics.ListAPIView):
     filter_class = AuditListFilter
 
 
-class AuditCreate(generics.CreateAPIView):
+class AuditCreate(generics.CreateAPIView, mixins.CreateModelMixin):
     model = Audit
-    queryset = Audit.objects.all()
-    serializer_class = AuditSerializer
+    queryset = Audit.objects.filter(disabled=False)
+    serializer_class = AuditCreateSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
+    filter_class = AuditDetailFilter
+
+    def create(self, request, *args, **kwargs):
+
+        audit = AuditCreateSerializer(data=request.data)
+        try:
+            audit.is_valid(raise_exception=True)
+            audit = audit.save()
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+            result = '{0}:'.format(e)
+            print(result)
+            result = '{0}:'.format(e)
+            print("SerializeR Error: {0}: error:{1}".format(audit.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Audit Already Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, audit.pk, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
 
 
 class AuditDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Audit
-    queryset = Audit.objects.all()
-    serializer_class = AuditSerializer
+    queryset = Audit.objects.filter(disabled=False)
+    serializer_class = AuditDetailSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
+    filter_class = AuditDetailFilter
 
 
 class TemplateIndicatorDetail(generics.RetrieveUpdateAPIView):
     model = TemplateIndicator
-    queryset = TemplateIndicator.objects.all()
+    queryset = TemplateIndicator.objects.filter(disabled=False)
     serializer_class = TemplateIndicatorDetailSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, MultiPartParser, FormParser, )
@@ -355,25 +488,43 @@ class TemplateIndicatorDetail(generics.RetrieveUpdateAPIView):
 
 class TemplateCategoryDetail(generics.RetrieveUpdateAPIView):
     model = TemplateCategory
-    queryset = TemplateCategory.objects.all()
+    queryset = TemplateCategory.objects.filter(disabled=False)
     serializer_class = TemplateCategoryDetailSerializer
-    renderer_classes = (renderers.JSONRenderer,)
-    parser_classes = (JSONParser,)
-    permission_classes = (AllowAny,)
-
-
-class ClinicTypeList(generics.ListCreateAPIView):
-    model = ClinicType
-    queryset = ClinicType.objects.all().order_by('type')
-    serializer_class = ClinicTypeSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
 
+    def get2(self, request):
+        template_category = TemplateCategoryDetailSerializer(data=request.data,
+                                                             context={"audit": self.request.GET.get("audit")})
+        try:
+            template_category.is_valid(raise_exception=True)
+            template_category = template_category.save()
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+
+            logger.error("SerializeR Error: {0}: error:{1}".format(template_category.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Company Already Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, template_category.pk, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
+
+
+class ClinicTypeList(generics.ListCreateAPIView):
+    model = ClinicType
+    queryset = ClinicType.objects.filter(disabled=False).order_by('type')
+    serializer_class = ClinicTypeSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    permission_classes = (AllowAny, )
+    filter_fields = ('company', )
+
 
 class NoteTypeList(generics.ListAPIView):
     model = NoteType
-    queryset = NoteType.objects.all().order_by('type')
+    queryset = NoteType.objects.filter(disabled=False).order_by('type')
     serializer_class = NoteTypeSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -382,7 +533,7 @@ class NoteTypeList(generics.ListAPIView):
 
 class ClinicTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     model = ClinicType
-    queryset = ClinicType.objects.all()
+    queryset = ClinicType.objects.filter(disabled=False)
     serializer_class = ClinicTypeSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -391,7 +542,7 @@ class ClinicTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class AuditAreaList(generics.ListCreateAPIView):
     model = AuditArea
-    queryset = AuditArea.objects.all().order_by('name')
+    queryset = AuditArea.objects.filter(disabled=False).order_by('name')
     serializer_class = AuditAreaSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -399,26 +550,18 @@ class AuditAreaList(generics.ListCreateAPIView):
     filter_class = AuditAreaListFilter
 
     def put(self, request):
-        context = request.data
-        company_id = context.pop("companyId")
-        director = context.pop("director")
-        manager = context.pop("manager")
-        clinic_type_id = context.pop("clinicTypeId")
-        specialty_type_id = context.pop("specialtyTypeId")
-        phone = context.pop("phone")
-        audit_area = AuditAreaSerializer(data=request.data, context={"company": company_id,
-                                                                     "director": director,
-                                                                     "manager": manager,
-                                                                     "phone": phone,
-                                                                     "clinic_type": clinic_type_id,
-                                                                     "specialty_type": specialty_type_id,
-                                                                     })
+
+        audit_area = AuditAreaSerializer(data=request.data, context={"manager": request.data.pop("manager"),
+                                                                     "director": request.data.pop("director"),
+                                                                     "phone": request.data.pop("phone")})
 
         try:
             audit_area.is_valid(raise_exception=True)
             audit_area = audit_area.save()
-        except serializers.ValidationError as error:
-            result = '{0}:'.format(error)
+        except (RuntimeError, TypeError, NameError) as e:
+            result = '{0}:'.format(e)
+            print(result)
+
             logger.error("SerializeR Error: {0}: error:{1}".format(audit_area.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Company Already Exists', result).return_json(),
                             status=status.HTTP_400_BAD_REQUEST)
@@ -429,7 +572,7 @@ class AuditAreaList(generics.ListCreateAPIView):
 
 class AuditAreaDetail(generics.RetrieveUpdateDestroyAPIView):
     model = AuditArea
-    queryset = AuditArea.objects.all()
+    queryset = AuditArea.objects.filter(disabled=False)
     serializer_class = AuditAreaSerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -442,7 +585,7 @@ class AuditAreaDetail(generics.RetrieveUpdateDestroyAPIView):
         try:
             serializer.is_valid(raise_exception=True)
             serializer = serializer.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(serializer.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Audit Area Already Exists', result).return_json(),
@@ -455,9 +598,43 @@ class AuditAreaDetail(generics.RetrieveUpdateDestroyAPIView):
         pass
 
 
+class AuditIndicatorOptionDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = AuditIndicatorOption
+    queryset = AuditIndicatorOption.objects.all()
+    serializer_class = AuditIndicatorOptionSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    permission_classes = (AllowAny, )
+    lookup_fields = ('audit', 'indicator', )
+
+    def get_object(self):
+        queryset = self.get_queryset()  # Get the base queryset
+        queryset = self.filter_queryset(queryset)
+        filter = {}
+        for field in self.lookup_fields:
+            if self.kwargs[field]:  # Ignore empty fields.
+                filter[field] = self.kwargs[field]
+        return get_object_or_404(queryset, **filter)  # Lookup the object
+
+    def update(self, request, *args, **kwargs):
+
+        serializer = AuditIndicatorOptionSerializer(self.get_object(), data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer = serializer.save()
+        except ValidationError as error:
+            result = '{0}:'.format(error)
+            logger.error("SerializeR Error: {0}: error:{1}".format(serializer.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Audit Area Already Exists', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, serializer.id, "success").return_json(),
+                        status=status.HTTP_201_CREATED)
+
+
 class CompanyList(generics.ListAPIView):
     model = Company
-    queryset = Company.objects.all().order_by('name')
+    queryset = Company.objects.filter(disabled=False).order_by('name')
     serializer_class = CompanySerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -470,7 +647,7 @@ class CompanyList(generics.ListAPIView):
 
 class CompanyCreate(generics.CreateAPIView):
     model = Company
-    queryset = Company.objects.all().order_by('name')
+    queryset = Company.objects.filter(disabled=False).order_by('name')
     serializer_class = CompanySerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -478,10 +655,11 @@ class CompanyCreate(generics.CreateAPIView):
 
     def put(self, request):
         company = CompanySerializer(data=request.data)
+
         try:
             company.is_valid(raise_exception=True)
             company = company.save()
-        except serializers.ValidationError as error:
+        except ValidationError as error:
             result = '{0}:'.format(error)
             logger.error("SerializeR Error: {0}: error:{1}".format(company.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Company Already Exists', result).return_json(),
@@ -493,23 +671,22 @@ class CompanyCreate(generics.CreateAPIView):
 
 class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Company
-    queryset = Company.objects.all()
+    queryset = Company.objects.filter(disabled=False)
     serializer_class = CompanySerializer
     renderer_classes = (renderers.JSONRenderer, )
     parser_classes = (JSONParser, )
     permission_classes = (AllowAny, )
 
     def update(self, request, *args, **kwargs):
-        company = Company.objects.get(pk=self.kwargs['pk'])
-        serializer = CompanySerializer(company, data=request.data)
+        serializer = CompanySerializer(self.get_object(), data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
-            serializer = serializer.save()
-        except serializers.ValidationError as error:
+            company = serializer.save()
+        except ValidationError as error:
             result = '{0}:'.format(error)
-            logger.error("SerializeR Error: {0}: error:{1}".format(company.errors, result))
+            logger.error("SerializeR Error: {0}: error:{1}".format(serializer.errors, result))
             return Response(ReturnResponse.Response(1, __name__, 'Company Already Exists', result).return_json(),
                             status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(ReturnResponse.Response(0, __name__, serializer.id, "success").return_json(),
+        return Response(ReturnResponse.Response(0, __name__, company.id, "success").return_json(),
                         status=status.HTTP_201_CREATED)

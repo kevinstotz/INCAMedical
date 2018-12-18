@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 from configurations import Configuration
 from API.settings import Globals
 from os.path import join
+import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 
@@ -75,6 +76,7 @@ class Base(Configuration):
 
     CORS_ALLOW_HEADERS = (
         'Content-Type',
+        'contentType',
         'Access-Control-Allow-Origin',
         'Accept',
         #  'Accept-Encoding',
@@ -164,7 +166,7 @@ class Base(Configuration):
     AUTH_USER_MODEL = 'API.CustomUser'
     MANAGERS = ADMINS
     # base public URL of MEDIA_ROOT directory
-    MEDIA_URL = 'static/media/'
+    MEDIA_URL = join('static', 'media/')
     MEDIA_ROOT = join(Globals.BASE_DIR, 'media')
     # the full path to a directory where you’d like Django to store uploaded files
 
@@ -174,18 +176,8 @@ class Base(Configuration):
     # Don't put anything in this directory yourself; store your static files
     # in apps' "static/" subdirectories and in STATICFILES_DIRS.
     # Example: "/home/media/media.lawrence.com/static/"
-    STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
-    # URL prefix for static files.
-    # Example: "http://media.lawrence.com/static/"
 
-    STATIC_URL = '/static/'
-    # Additional locations of static files
-    STATICFILES_DIRS = (
-        join("/var", "www", "html", "incamedical", "INCAMedical", "static", ),
-        # Put strings here, like "/home/html/static" or "C:/www/django/static".
-        # Always use forward slashes, even on Windows.
-        # Don't forget to use absolute paths, not relative paths.
-    )
 
 from API.settings.Dev import Dev
-from API.settings.Prod import Prod
+#
+# from API.settings.Prod import Prod

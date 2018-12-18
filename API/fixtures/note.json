@@ -1,0 +1,15 @@
+[{
+	"model": "API.note",
+	"pk": 2,
+	"fields": {
+		"note": "A Note",
+		"fromUser": 1,
+		"type": 3,
+		"updated": "2018-12-17T19:20:57.040Z",
+		"created": "2018-12-17T19:20:57.040Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}]

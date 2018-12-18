@@ -1,1 +1,274 @@
-[{"model": "API.specialtytype", "pk": 1, "fields": {"type": "Cardiology", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 2, "fields": {"type": "Orthopedics", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 3, "fields": {"type": "Pediatric and Adult Primary Care", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 4, "fields": {"type": "Urgent Care", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 5, "fields": {"type": "Angleton MFM", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 6, "fields": {"type": "Angleton RMCHP", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 7, "fields": {"type": "Surgical Specialties (Colorectal, General, Surgical, Thoracic, Urology, Vascular)", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 8, "fields": {"type": "Acute Medical/surgical Units", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 9, "fields": {"type": "ADC Endoscopy", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 10, "fields": {"type": "Cardiac Rehabilitation/Heart Station", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 11, "fields": {"type": "ED", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 12, "fields": {"type": "Endocrinology", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 13, "fields": {"type": "Family Medicine Clinic", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 14, "fields": {"type": "Infusion Therapy Center", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 15, "fields": {"type": "L&D Peklo Women's Pavillion", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 16, "fields": {"type": "3rd floor Derm", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 17, "fields": {"type": "OR", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 18, "fields": {"type": "Outpatient Surgery Center", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 19, "fields": {"type": "Pedi and adult primary care", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 20, "fields": {"type": "Radiology US", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}, {"model": "API.specialtytype", "pk": 21, "fields": {"type": "Rehabilitation Services", "company": 1, "updated": "2018-11-07T18:19:36.994Z", "created": "2018-11-13T14:30:08.804Z", "active": true}}]
+[{
+	"model": "API.specialtytype",
+	"pk": 1,
+	"fields": {
+		"type": "Cardiology",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 2,
+	"fields": {
+		"type": "Orthopedics",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 3,
+	"fields": {
+		"type": "Pediatric and Adult Primary Care",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 4,
+	"fields": {
+		"type": "Urgent Care",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 5,
+	"fields": {
+		"type": "Angleton MFM",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 6,
+	"fields": {
+		"type": "Angleton RMCHP",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 7,
+	"fields": {
+		"type": "Surgical Specialties (Colorectal, General, Surgical, Thoracic, Urology, Vascular)",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 8,
+	"fields": {
+		"type": "Acute Medical/surgical Units",
+		"company": 1,
+		"updated": "2018-12-13T19:17:33.737Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 9,
+	"fields": {
+		"type": "ADC Endoscopy",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 10,
+	"fields": {
+		"type": "Cardiac Rehabilitation/Heart Station",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 11,
+	"fields": {
+		"type": "ED",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 12,
+	"fields": {
+		"type": "Endocrinology",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 13,
+	"fields": {
+		"type": "Family Medicine Clinic",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 14,
+	"fields": {
+		"type": "Infusion Therapy Center",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 15,
+	"fields": {
+		"type": "L&D Peklo Women's Pavillion",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 16,
+	"fields": {
+		"type": "3rd floor Derm",
+		"company": 1,
+		"updated": "2018-12-13T21:50:55.761Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 17,
+	"fields": {
+		"type": "OR",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 18,
+	"fields": {
+		"type": "Outpatient Surgery Center",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 19,
+	"fields": {
+		"type": "Pedi and adult primary care",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 20,
+	"fields": {
+		"type": "Radiology US",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}, {
+	"model": "API.specialtytype",
+	"pk": 21,
+	"fields": {
+		"type": "Rehabilitation Services",
+		"company": 1,
+		"updated": "2018-11-07T18:19:36.994Z",
+		"created": "2018-11-13T14:30:08.804Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}]

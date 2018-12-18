@@ -124,3 +124,14 @@ class AuditListFilter(FilterSet):
     class Meta:
         Model = Audit
         fields = ['active', 'company', 'template', ]
+
+class AuditDetailFilter(FilterSet):
+    categories = filters.RelatedFilter(CategoryListFilter,
+                                       field_name="categories__parent",
+                                       queryset=Audit.objects.all())
+    active = filters.BooleanFilter()
+    template = filters.NumberFilter()
+
+    class Meta:
+        Model = Audit
+        fields = ['active', 'categories', 'template', ]

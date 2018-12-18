@@ -1,1 +1,15 @@
-[{"model": "API.company", "pk": 1, "fields": {"site_id": "", "name": "Facility 1", "user_profile": 1, "updated": "2018-11-07T18:19:31.741Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 2, "fields": {"site_id": "", "name": "Facility 2", "user_profile": 1, "updated": "2018-11-07T18:19:31.741Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 3, "fields": {"site_id": "", "name": "Facility 3 update", "user_profile": 1, "updated": "2018-11-12T03:00:45.340Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 4, "fields": {"site_id": "", "name": "Facility 4 update agaain", "user_profile": 1, "updated": "2018-11-12T01:21:29.337Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 5, "fields": {"site_id": "", "name": "Facility 5 update again", "user_profile": 1, "updated": "2018-11-12T01:21:12.254Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 6, "fields": {"site_id": "", "name": "Facility 6", "user_profile": 1, "updated": "2018-11-08T15:01:28.138Z", "created": "2018-11-13T14:30:06.151Z", "active": false}}, {"model": "API.company", "pk": 8, "fields": {"site_id": "", "name": "Facility 8", "user_profile": 1, "updated": "2018-11-12T00:58:31.152Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}, {"model": "API.company", "pk": 13, "fields": {"site_id": "", "name": "Facility 10", "user_profile": 1, "updated": "2018-11-12T03:00:55.324Z", "created": "2018-11-13T14:30:06.151Z", "active": true}}]
+[{
+	"model": "API.company",
+	"pk": 1,
+	"fields": {
+		"site_id": "",
+		"name": "Facility 1",
+		"user_profile": 1,
+		"updated": "2018-11-07T18:19:31.741Z",
+		"created": "2018-11-13T14:30:06.151Z",
+		"active": true,
+		"disabled": false,
+		"creator": 1,
+		"owner": 1
+	}
+}]

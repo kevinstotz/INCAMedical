@@ -1,9 +1,11 @@
 from API.settings.Base import Base
 from API.settings import Globals
 from os.path import join
-
+from django.utils import timezone
+import datetime
 
 class Dev(Base):
+    datetime.datetime.now(tz=timezone.utc)
     DEBUG = True
     DJANGO_LOG_LEVEL = DEBUG
 
@@ -59,8 +61,6 @@ class Dev(Base):
 
     }
 
-    STATIC_ROOT = "/static-dev/"
+    STATIC_URL = '/static/'
     STATIC_ROOT = join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web", "static", "media", )
-    STATICFILES_DIRS = (
-        join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web, ""static", "media", ),
-    )
+    STATICFILES_DIRS = ("media", )

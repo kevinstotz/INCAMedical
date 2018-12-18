@@ -1,8 +1,8 @@
 from os.path import join, abspath, dirname, relpath, realpath
 
-BASE_DIR = abspath(dirname(__name__))  # .../DimeAPI
-PROJECT_DIR = dirname(dirname(abspath(__file__)))  # .../DimeAPI/DimeAPI
-SETTINGS_DIR = dirname(realpath(__file__))  # .../DimeAPI/DimeAPI/settings
+BASE_DIR = abspath(dirname(__name__))  # .../API
+PROJECT_DIR = dirname(dirname(abspath(__file__)))  # .../API/API
+SETTINGS_DIR = dirname(realpath(__file__))  # .../API/API/settings
 PROJECT_NAME = relpath(PROJECT_DIR)  # DimeAPI
 
 SECURE = 'https://'
@@ -10,7 +10,8 @@ UNSECURE = 'http://'
 SECRET_KEY = '(tlbv7h$1t9tono86(4w%aat9@%6*^#s7q)f1hojg#v8f&16ig'
 
 # Email settings
-TEMPLATE_COMPANY = 0
+TEMPLATE_COMPANY = 1
+DEFAULT_USER = 1
 PASSWORD_LENGTH = 64
 EMAIL_TIMEOUT = 10
 EMAIL_LENGTH = 100

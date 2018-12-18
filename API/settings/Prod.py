@@ -1,6 +1,6 @@
 from API.settings import Globals
 from API.settings.Base import Base
-from os import environ
+from os.path import join
 
 
 class Prod(Base):
@@ -24,3 +24,15 @@ class Prod(Base):
     Base.ALLOWED_HOSTS.append(WEBSITE_HOSTNAME)
     Base.ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
     Base.ALLOWED_HOSTS.append("52.25.200.16")
+    STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
+    # URL prefix for static files.
+    # Example: "http://media.lawrence.com/static/"
+
+    STATIC_URL = '/static/'
+    # Additional locations of static files
+    STATICFILES_DIRS = (
+        join("/var", "www", "html", "incamedical", "INCAMedical", "static", ),
+        # Put strings here, like "/home/html/static" or "C:/www/django/static".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+    )

@@ -4,7 +4,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from API.settings.Globals import EMAIL_LENGTH, PASSWORD_LENGTH, AUDIT_AREA_NAME_LENGTH, UUID_ZERO, \
-    ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH
+    ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH, DEFAULT_USER
+
+
+def validate_uuid(value):
+    return value
 
 
 class Index(models.Model):
@@ -92,10 +96,17 @@ class City(models.Model):
 
 class AddressType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20, verbose_name="Type of Address", blank=False, default="1")
+    type = models.CharField(max_length=20, verbose_name="Address Type Type", blank=False, default="1")
     active = models.BooleanField(default=True, verbose_name="Address Type Active")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    disabled = models.BooleanField(default=False, verbose_name="Address Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
 
     objects = models.Manager()
 
@@ -116,31 +127,37 @@ class Address(models.Model):
                              on_delete=models.CASCADE,
                              default=1,
                              related_name="addressType",
-                             verbose_name="Address Type", )
+                             verbose_name="Address Type")
     zipcode = models.ForeignKey(ZipCode,
                                 on_delete=models.PROTECT,
                                 default=1,
                                 related_name='addressZipcode',
-                                verbose_name="Address Zip Code", )
+                                verbose_name="Address Zip Code")
     city = models.ForeignKey(City,
                              on_delete=models.PROTECT,
                              default=1,
                              related_name='addressCity',
-                             verbose_name="Address City", )
+                             verbose_name="Address City")
     state = models.ForeignKey(State,
                               on_delete=models.PROTECT,
                               default=1,
                               related_name='addressState',
-                              verbose_name="Address State", )
+                              verbose_name="Address State")
     country = models.ForeignKey(Country,
                                 on_delete=models.PROTECT,
                                 default=1,
                                 related_name='addressCountry',
-                                verbose_name="Address Country", )
+                                verbose_name="Address Country")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Address Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Address Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -156,7 +173,13 @@ class NameType(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Name Type Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Name Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -168,16 +191,22 @@ class NameType(models.Model):
 
 class PersonName(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=FIRST_NAME_LENGTH, verbose_name="Name of Person")
+    name = models.CharField(max_length=FIRST_NAME_LENGTH, verbose_name="Person Name Name")
+    type = models.ForeignKey(NameType,
+                             on_delete=models.PROTECT,
+                             verbose_name="Person Name Type",
+                             default=1,
+                             related_name='nameType')
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Person Name Active")
-    type = models.ForeignKey(NameType,
-                             on_delete=models.PROTECT,
-                             verbose_name="Name Type",
-                             default=1,
-                             related_name='nameType')
-
+    disabled = models.BooleanField(default=False, verbose_name="Person Name Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -189,11 +218,17 @@ class PersonName(models.Model):
 
 class NotificationType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=50, verbose_name="Type of Notification")
+    type = models.CharField(max_length=50, verbose_name="Notification Type")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Notification Type Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Notification Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -205,15 +240,65 @@ class NotificationType(models.Model):
 
 class NotificationStatus(models.Model):
     id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=50, verbose_name="Status of Notification")
+    status = models.CharField(max_length=50, verbose_name="Notification Status Status")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Notification Status Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Notification Status Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
         return '%s' % self.status
+
+    class Meta:
+        ordering = ('id', )
+
+
+class Role(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=50, default="None", blank=False, unique=True, verbose_name="Role Type")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Role Active")
+    disabled = models.BooleanField(default=False, verbose_name="Role Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Role Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Role Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.role
+
+    class Meta:
+        ordering = ('id', )
+
+
+class Permission(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=50, default="None", blank=False, unique=True, verbose_name="Permission Type")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
+    active = models.BooleanField(default=True, verbose_name="Permission Active")
+    disabled = models.BooleanField(default=False, verbose_name="Permission Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Permission Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Permission Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.type
 
     class Meta:
         ordering = ('id', )
@@ -225,7 +310,13 @@ class EPAIndicator(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="EPA Indicator Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="EPA Indicator Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -237,10 +328,17 @@ class EPAIndicator(models.Model):
 
 class PhoneNumberType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20, verbose_name="Type of Phone Number", blank=False, default="1")
+    type = models.CharField(max_length=20, verbose_name="Phone Number Type Type", blank=False, default="1")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Phone Number Type Active")
+    disabled = models.BooleanField(default=False, verbose_name="Phone Number Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -266,6 +364,13 @@ class PhoneNumber(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Phone Number Active")
+    disabled = models.BooleanField(default=False, verbose_name="Phone Number Active Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -296,15 +401,19 @@ class UserProfile(models.Model):
                                 )
     date_of_birth = models.CharField(max_length=50,
                                      blank=True,
-                                     verbose_name="date of birth of user",
+                                     verbose_name="User Profile Date of Birth",
                                      unique=False,
                                      default="1970/01/01",
                                      )
-
+    roles = models.ManyToManyField(Role,
+                                   related_name="userProfileRoles",
+                                   verbose_name="User Profile Roles")
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="User Profile created")
+    disabled = models.BooleanField(default=False, verbose_name="User Profile Disabled")
+
     objects = models.Manager()
 
     def __str__(self):
@@ -326,6 +435,13 @@ class Company(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Company Active")
+    disabled = models.BooleanField(default=False, verbose_name="Company Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -337,11 +453,17 @@ class Company(models.Model):
 
 class NoteType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=50, verbose_name="Type of Note")
+    type = models.CharField(max_length=50, verbose_name="Note Type")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Note Type Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Note Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -362,7 +484,13 @@ class IndicatorOption(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Indicator Option created")
     active = models.BooleanField(default=True, verbose_name="Indicator Option Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Indicator Option Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -384,7 +512,13 @@ class IndicatorType(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Indicator Type created")
     active = models.BooleanField(default=True, verbose_name="Indicator Type Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Indicator Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -406,7 +540,13 @@ class SpecialtyType(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Specialty Type created")
     active = models.BooleanField(default=True, verbose_name="Specialty Type Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Specialty Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -428,6 +568,13 @@ class Category(models.Model):
     active = models.BooleanField(default=True, verbose_name="Category Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    disabled = models.BooleanField(default=False, verbose_name="Category Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -443,10 +590,16 @@ class Image(models.Model):
     uploaded_name = models.CharField(max_length=255, default="", blank=True)
     file = models.FileField(upload_to='images/', verbose_name="Image path", name="imagePath")
     size = models.IntegerField(default=0)
-    active = models.BooleanField(default=True, verbose_name="Indicators Active")
+    active = models.BooleanField(default=True, verbose_name="Image Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
-
+    disabled = models.BooleanField(default=False, verbose_name="Image Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -472,6 +625,13 @@ class Indicators(models.Model):
     active = models.BooleanField(default=True, verbose_name="Indicators Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    disabled = models.BooleanField(default=False, verbose_name="Indicators Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -483,7 +643,7 @@ class Indicators(models.Model):
 
 class Indicator(models.Model):
     id = models.AutoField(primary_key=True)
-    short_name = models.CharField(max_length=50)
+    short_name = models.CharField(max_length=50, default="None", blank=True)
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE,
                                 default=1,
@@ -497,9 +657,16 @@ class Indicator(models.Model):
     options = models.ManyToManyField(IndicatorOption, related_name='indicatorOptions')
     images = models.ManyToManyField(Image, related_name='indicatorImages')
     name = models.TextField(max_length=2000)
-    active = models.BooleanField(default=True, verbose_name="Indicators Active")
+    active = models.BooleanField(default=True, verbose_name="Indicator Active")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    disabled = models.BooleanField(default=False, verbose_name="Indicator Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -520,6 +687,13 @@ class ClinicType(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Clinic Type Active")
+    disabled = models.BooleanField(default=False, verbose_name="Clinic Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -566,7 +740,13 @@ class AuditArea(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Audit Area Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Audit Area Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -587,7 +767,13 @@ class MailServer(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=False, verbose_name="Active Mail Server")
-
+    disabled = models.BooleanField(default=False, verbose_name="Mail Server Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -603,7 +789,13 @@ class UserStatus(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="User Status Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="User Status Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -663,7 +855,13 @@ class EmailAddressStatus(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Email Address Status Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Email Address Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -681,15 +879,22 @@ class EmailTemplate(models.Model):
                                     max_length=100,
                                     blank=True,
                                     null=True,
-                                    verbose_name="Filename")
+                                    verbose_name="Email Template HTML Filename")
     textFilename = models.FileField(upload_to=EMAIL_TEMPLATE_DIR,
                                     max_length=100,
                                     blank=True,
                                     null=True,
-                                    verbose_name="Filename")
+                                    verbose_name="Email Template Text Filename")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Email Template Active")
+    disabled = models.BooleanField(default=False, verbose_name="Email Template Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     @property
@@ -760,11 +965,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class EmailAddressType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20, verbose_name="Type of Email Address", blank=False, default="1")
+    type = models.CharField(max_length=20, verbose_name="Email Address Type", blank=False, default="1")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Email address Type Active")
-
+    active = models.BooleanField(default=True, verbose_name="Email Address Type Active")
+    disabled = models.BooleanField(default=False, verbose_name="Email Sddress Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -779,18 +990,24 @@ class EmailAddress(models.Model):
     email = models.EmailField(max_length=EMAIL_LENGTH,
                               blank=False,
                               default='noemail@noemail.com',
-                              verbose_name="Email of Register")
+                              verbose_name="Email Address of Register")
     type = models.ForeignKey(EmailAddressType, on_delete=models.CASCADE)
     user_profile = models.OneToOneField(UserProfile,
                                         on_delete=models.CASCADE,
                                         default=1,
-                                        verbose_name="Custom User Profile",
-                                        related_name="customUserProfile", )
+                                        verbose_name="Email Address Custom User Profile",
+                                        related_name="emailAddressCustomUserProfile", )
     status = models.ForeignKey(EmailAddressStatus, on_delete=models.PROTECT, default=1)
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Email address Active")
-
+    active = models.BooleanField(default=True, verbose_name="Email Address Active")
+    disabled = models.BooleanField(default=False, verbose_name="Email Address Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -803,7 +1020,6 @@ class EmailAddress(models.Model):
 class Template(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, blank=False)
-
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE,
                                 default=1,
@@ -814,7 +1030,13 @@ class Template(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Template Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -825,8 +1047,26 @@ class Template(models.Model):
         unique_together = ("company", "name", )
 
 
-def validate_uuid(value):
-    return UUID_ZERO if value == "#" else value
+class TemplateIndicatorType(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=50, blank=False)
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Template Indicator Type created")
+    active = models.BooleanField(default=True, verbose_name="Template Indicator Type Active")
+    disabled = models.BooleanField(default=False, verbose_name="Template Indicator Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
 
 
 class Note(models.Model):
@@ -845,7 +1085,13 @@ class Note(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Note Type")
-
+    disabled = models.BooleanField(default=False, verbose_name="Note Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -857,11 +1103,17 @@ class Note(models.Model):
 
 class UploadType(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20, verbose_name="Type of Upload", blank=False, default="1")
+    type = models.CharField(max_length=20, verbose_name="Upload Type", blank=False, default="1")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Email address Type Active")
-
+    active = models.BooleanField(default=True, verbose_name="Upload Type Active")
+    disabled = models.BooleanField(default=False, verbose_name="Upload Type Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -876,7 +1128,7 @@ class Upload(models.Model):
     name = models.CharField(max_length=255, default="", blank=True)
     uploaded_name = models.CharField(max_length=255, default="", blank=True)
     file = models.FileField(upload_to='images/', verbose_name="Upload path", name="uploadPath")
-    size = models.IntegerField(default=0)
+    size = models.IntegerField(default=0, verbose_name="Upload Size")
     fromUser = models.ForeignKey(CustomUser,
                                  on_delete=models.CASCADE,
                                  default=1,
@@ -889,8 +1141,36 @@ class Upload(models.Model):
                              verbose_name="Upload Type")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
-    active = models.BooleanField(default=True, verbose_name="Active Upload")
+    active = models.BooleanField(default=True, verbose_name="Upload Active")
+    disabled = models.BooleanField(default=False, verbose_name="Upload Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
+    objects = models.Manager()
 
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+
+
+class TemplateIndicatorOption(models.Model):
+    id = models.AutoField(primary_key=True)
+    option = models.CharField(max_length=50, blank=False)
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Template Indicator Option created")
+    active = models.BooleanField(default=True, verbose_name="Template Indicator Option Active")
+    disabled = models.BooleanField(default=False, verbose_name="Template Indicator Option Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -902,9 +1182,13 @@ class Upload(models.Model):
 
 class TemplateIndicator(models.Model):
     id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(primary_key=False, default=uuid.uuid4, unique=True, editable=True)
-    parent = models.UUIDField(validators=[validate_uuid],
-                              primary_key=False,
+    uuid = models.UUIDField(primary_key=False,
+                            default=uuid.uuid4,
+                            unique=True,
+                            editable=True)
+    level = models.IntegerField(default=0, blank=False)
+    position = models.IntegerField(default=0, blank=False)
+    parent = models.UUIDField(primary_key=False,
                               default=UUID_ZERO,
                               unique=False,
                               editable=True)
@@ -912,24 +1196,31 @@ class TemplateIndicator(models.Model):
                                  on_delete=models.CASCADE,
                                  default=1,
                                  related_name="templateIndicatorTemplate",
-                                 verbose_name="Template Indicator Template", )
-    indicator = models.ForeignKey(Indicator,
-                                  on_delete=models.CASCADE,
-                                  related_name="templateIndicatorIndicator",
-                                  default=1,
-                                  verbose_name="Template Indicator Indicator", )
-    indicator_option = models.ForeignKey(IndicatorOption,
+                                 verbose_name="Template Indicator Template")
+    indicator_source = models.ForeignKey(Indicator,
                                          on_delete=models.CASCADE,
+                                         related_name="templateIndicatorIndicatorSource",
                                          default=1,
-                                         related_name="templateIndicatorSelectedOption",
-                                         verbose_name="Template Indicator Selected Option", )
-    notes = models.ManyToManyField(Note, related_name='templateIndicatorNotes')
-    images = models.ManyToManyField(Image, related_name='templateIndicaotrImages')
-    uploads = models.ManyToManyField(Upload, related_name='templateIndicatorUploads')
+                                         verbose_name="Template Indicator Indicator Source")
+    name = models.TextField(max_length=2000)
+    indicator_type = models.ForeignKey(TemplateIndicatorType,
+                                       on_delete=models.CASCADE,
+                                       default=1,
+                                       related_name="templateIndicatorType",
+                                       verbose_name="Template Indicator Type")
+    indicator_options = models.ManyToManyField(TemplateIndicatorOption,
+                                               verbose_name="Template Indicator Options",
+                                               related_name='templateIndicatorOptions')
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Indicator Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Template Indicator Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -941,8 +1232,15 @@ class TemplateIndicator(models.Model):
 
 class TemplateCategory(models.Model):
     id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(primary_key=False, default=uuid.uuid4, unique=True, editable=True)
-    parent = models.UUIDField(validators=[validate_uuid],
+    uuid = models.UUIDField(
+                            primary_key=False,
+                            default=uuid.uuid4,
+                            unique=True,
+                            editable=True)
+    level = models.IntegerField(default=0, blank=False)
+    position = models.IntegerField(default=0, blank=False)
+    name = models.CharField(max_length=255, unique=False, blank=False)
+    parent = models.UUIDField(
                               primary_key=False,
                               default=UUID_ZERO,
                               unique=False,
@@ -950,17 +1248,23 @@ class TemplateCategory(models.Model):
     template = models.ForeignKey(Template,
                                  on_delete=models.CASCADE,
                                  default=1,
-                                 related_name="TemplateCategoryTemplate",
+                                 related_name="templateCategoryTemplate",
                                  verbose_name="Template Category Template", )
-    category = models.ForeignKey(Category,
-                                 on_delete=models.CASCADE,
-                                 related_name="templateCategoryCategory",
-                                 default=1,
-                                 verbose_name="Template Category Category", )
+    category_source = models.ForeignKey(Category,
+                                        on_delete=models.CASCADE,
+                                        related_name="templateCategoryCategorySource",
+                                        default=1,
+                                        verbose_name="Template Category Category Source", )
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Template Category Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Template Category Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -978,15 +1282,27 @@ class Audit(models.Model):
                              default=1,
                              related_name="auditArea",
                              verbose_name="Audit Area", )
+    company = models.ForeignKey(Company,
+                                on_delete=models.CASCADE,
+                                default=1,
+                                related_name="auditCompany",
+                                verbose_name="Audit Company", )
     template = models.ForeignKey(Template,
                                  on_delete=models.CASCADE,
                                  default=1,
                                  related_name="auditTemplate",
                                  verbose_name="Audit Template", )
+
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Audit Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Audit Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
@@ -994,6 +1310,117 @@ class Audit(models.Model):
 
     class Meta:
         ordering = ('id', )
+
+
+class AuditIndicatorUpload(models.Model):
+    id = models.AutoField(primary_key=True)
+    audit = models.ForeignKey(Audit,
+                              on_delete=models.CASCADE,
+                              default=1,
+                              related_name="auditIndicatorUploadAudit",
+                              verbose_name="Audit Indicator Upload Audit")
+    indicator = models.ForeignKey(TemplateIndicator,
+                                  on_delete=models.CASCADE,
+                                  default=1,
+                                  related_name="auditIndicatorUploadIndicator",
+                                  verbose_name="Audit Indicator Upload Indicator")
+    upload = models.ForeignKey(Upload,
+                               on_delete=models.CASCADE,
+                               default=1,
+                               related_name="auditIndicatorUploadOption",
+                               verbose_name="Audit Indicator Upload Option")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Audit Indicator Upload created")
+    active = models.BooleanField(default=True, verbose_name="Audit Indicator Upload Active")
+    disabled = models.BooleanField(default=False, verbose_name="Audit Indicator Upload Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+        unique_together = ("indicator", "audit", "upload", )
+
+
+class AuditIndicatorNote(models.Model):
+    id = models.AutoField(primary_key=True)
+    audit = models.ForeignKey(Audit,
+                              on_delete=models.CASCADE,
+                              default=1,
+                              related_name="auditIndicatoNoteAudit",
+                              verbose_name="Audit Indicator Note Audit")
+    indicator = models.ForeignKey(TemplateIndicator,
+                                  on_delete=models.CASCADE,
+                                  default=1,
+                                  related_name="auditIndicatorNoteIndicator",
+                                  verbose_name="Audit Indicator Note Indicator")
+    note = models.ForeignKey(Note,
+                             on_delete=models.CASCADE,
+                             default=1,
+                             related_name="auditIndicatorNoteNote",
+                             verbose_name="Audit Indicator Note Note")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Audit Indicator Note created")
+    active = models.BooleanField(default=True, verbose_name="Audit Indicator Note Active")
+    disabled = models.BooleanField(default=False, verbose_name="Audit Indicator Note Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+        unique_together = ("indicator", "audit", "note", )
+
+
+class AuditIndicatorOption(models.Model):
+    id = models.AutoField(primary_key=True)
+    audit = models.ForeignKey(Audit,
+                              on_delete=models.CASCADE,
+                              default=1,
+                              related_name="auditIndicatorOptionAudit",
+                              verbose_name="Audit Indicator Option Audit")
+    indicator = models.ForeignKey(TemplateIndicator,
+                                  on_delete=models.CASCADE,
+                                  default=1,
+                                  related_name="auditIndicatorOptionIndicator",
+                                  verbose_name="Audit Indicator Option Indicator")
+    option = models.ForeignKey(TemplateIndicatorOption,
+                               on_delete=models.CASCADE,
+                               default=1,
+                               related_name="auditIndicatorOptionOption",
+                               verbose_name="Audit Indicator Option Option")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Audit Indicator Option created")
+    active = models.BooleanField(default=True, verbose_name="Audit Indicator Option Active")
+    disabled = models.BooleanField(default=False, verbose_name="Audit Indicator Option Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
+    objects = models.Manager()
+
+    def __str__(self):
+        return '%s' % self.id
+
+    class Meta:
+        ordering = ('id', )
+        unique_together = ("indicator", "audit")
 
 
 class Notification(models.Model):
@@ -1018,7 +1445,13 @@ class Notification(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Notification Active")
-
+    disabled = models.BooleanField(default=False, verbose_name="Notification Disabled")
+    creator = models.IntegerField(default=DEFAULT_USER,
+                                  verbose_name="Address Type Creator",
+                                  blank=False)
+    owner = models.IntegerField(default=DEFAULT_USER,
+                                verbose_name="Address Type Owner",
+                                blank=False)
     objects = models.Manager()
 
     def __str__(self):
