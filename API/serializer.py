@@ -16,6 +16,7 @@ class IndexSerializer(ModelSerializer):
 
     class Meta:
         model = Index
+        fields = ('__all__', )
 
 
 class CategorySerializer(ModelSerializer):
@@ -23,7 +24,7 @@ class CategorySerializer(ModelSerializer):
 
     class Meta:
         model = Category
-        read_only_fields = ('id', 'created',)
+        read_only_fields = ('id', 'created', )
         fields = ('id', 'name', 'short_name', 'company', 'active', )
 
     def create(self, validated_data):
