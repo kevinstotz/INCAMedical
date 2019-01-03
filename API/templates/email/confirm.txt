@@ -1,0 +1,8 @@
+Hello FIRSTNAME,
+
+Please confirm your account
+
+CONFIRM_ACCOUNT_URL
+
+Support
+Inca Medical

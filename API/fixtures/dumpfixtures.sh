@@ -46,4 +46,4 @@ python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API
 python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API.emailaddress > API/fixtures/emailaddress.json
 python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API.auditindicatorupload > API/fixtures/auditindicatorupload.json
 python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API.auditindicatornote > API/fixtures/auditindicatornote.json
-python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API.auditindicatoroptions > API/fixtures/auditindicatoroptions.json
+python manage.py dumpdata --configuration=Prod --settings=API.settings.Base  API.auditindicatoroption > API/fixtures/auditindicatoroption.json

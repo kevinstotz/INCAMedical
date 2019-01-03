@@ -60,7 +60,8 @@ class Dev(Base):
         },
 
     }
-
+    MEDIA_ROOT = join(Globals.BASE_DIR, 'media', 'uploads')
+    MEDIA_URL = "/media/uploads/"
     STATIC_URL = '/static/'
     STATIC_ROOT = join("C:/", "Users", "kevin", "Google Drive", "Work", "INCAMedical", "Web", "static", "media", )
     STATICFILES_DIRS = ("media", )

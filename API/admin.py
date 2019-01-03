@@ -3,11 +3,12 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from API.models import CustomUser, Company, Address, AddressType, Audit, TemplateIndicator, TemplateCategory, Category, City, EmailAddress, EmailAddressType, EmailAddressStatus, EmailTemplate, \
-EPAIndicator, MailServer, PersonName, NameType, Notification, NotificationType, NotificationStatus, PhoneNumber, PhoneNumberType, IndicatorType, IndicatorOption, State, UserProfile, UserStatus,ZipCode
-
-
-from API.forms import CustomUserCreationForm, CustomUserChangeForm
+from API.models import CustomUser, Company, Address, AddressType, Audit, AuditArea, TemplateIndicator, Country, Note, \
+    TemplateCategory, Category, City, EmailAddress, EmailAddressType, EmailAddressStatus, EmailTemplate, PhoneNumber, \
+    EPAIndicator, MailServer, PersonName, NameType, Notification, NotificationType, NotificationStatus, Image, Role, \
+    PhoneNumberType, IndicatorType, IndicatorOption, State, UserProfile, UserStatus, ZipCode, UploadType, Upload, \
+    AuditIndicatorNote, AuditIndicatorOption, AuditIndicatorUpload, ClinicType, Indicator, NoteType, Permission, \
+    SpecialtyType, TemplateIndicatorType, TemplateIndicatorOption
 
 
 class UserCreationForm(forms.ModelForm):
@@ -75,42 +76,59 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'password1', 'password2')}
-        ),
+         ),
     )
     search_fields = ('email',)
     ordering = ('email',)
     filter_horizontal = ()
 # Now register the new UserAdmin...
 
+
 admin.site.register(CustomUser)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
-admin.site.register(Company)
 admin.site.register(Address)
 admin.site.register(AddressType)
 admin.site.register(Audit)
+admin.site.register(AuditArea)
+admin.site.register(AuditIndicatorNote)
+admin.site.register(AuditIndicatorOption)
+admin.site.register(AuditIndicatorUpload)
 admin.site.register(Category)
 admin.site.register(City)
+admin.site.register(ClinicType)
+admin.site.register(Company)
+admin.site.register(Country)
 admin.site.register(EmailAddress)
-admin.site.register(EmailAddressType)
 admin.site.register(EmailAddressStatus)
+admin.site.register(EmailAddressType)
 admin.site.register(EmailTemplate)
 admin.site.register(EPAIndicator)
-admin.site.register(MailServer)
-admin.site.register(PersonName)
-admin.site.register(NameType)
-admin.site.register(Notification)
-admin.site.register(NotificationType)
-admin.site.register(NotificationStatus)
-admin.site.register(PhoneNumber)
-admin.site.register(PhoneNumberType)
+admin.site.register(Image)
+admin.site.register(Indicator)
 admin.site.register(IndicatorOption)
 admin.site.register(IndicatorType)
+admin.site.register(MailServer)
+admin.site.register(NameType)
+admin.site.register(Note)
+admin.site.register(NoteType)
+admin.site.register(Notification)
+admin.site.register(NotificationStatus)
+admin.site.register(NotificationType)
+admin.site.register(Permission)
+admin.site.register(PersonName)
+admin.site.register(PhoneNumber)
+admin.site.register(PhoneNumberType)
+admin.site.register(Role)
+admin.site.register(SpecialtyType)
 admin.site.register(State)
 admin.site.register(TemplateCategory)
 admin.site.register(TemplateIndicator)
+admin.site.register(TemplateIndicatorOption)
+admin.site.register(TemplateIndicatorType)
+admin.site.register(Upload)
+admin.site.register(UploadType)
 admin.site.register(UserProfile)
 admin.site.register(UserStatus)
 admin.site.register(ZipCode)
-

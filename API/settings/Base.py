@@ -25,11 +25,12 @@ class Base(Configuration):
     # Application definition
 
     INSTALLED_APPS = [
+        'django.contrib.admin',
         'corsheaders',
+        'oauth2_provider',
         'rest_framework',
         'rest_framework_filters',
         'django_user_agents',
-        'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
@@ -40,7 +41,6 @@ class Base(Configuration):
 
     MIDDLEWARE = [
         'corsheaders.middleware.CorsMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -49,7 +49,18 @@ class Base(Configuration):
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ]
+    OAUTH2_PROVIDER = {
+        # this is the list of available scopes
+        'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
+    }
 
+    AUTHENTICATION_BACKENDS = (
+        'oauth2_provider.backends.OAuth2Backend',
+        'rest_framework.authentication.SessionAuthentication',
+        'django.contrib.auth.backends.ModelBackend',
+
+        # Uncomment following if you want to access the admin
+    )
     REST_FRAMEWORK = {
         #  'PAGE_SIZE': 10,
         'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
@@ -58,6 +69,9 @@ class Base(Configuration):
                                     'rest_framework.filters.OrderingFilter', ),
         'DEFAULT_PAGINATION_CLASS':
             'rest_framework_json_api.pagination.PageNumberPagination',
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated'
+        ),
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework_json_api.parsers.JSONParser',
             'rest_framework.parsers.FormParser',
@@ -67,10 +81,14 @@ class Base(Configuration):
             'rest_framework_json_api.renderers.JSONRenderer',
             'rest_framework.renderers.BrowsableAPIRenderer',
         ),
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+            'rest_framework.authentication.SessionAuthentication',
+        ),
         'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
     }
-    CORS_ORIGIN_WHITELIST = []
-    CSRF_TRUSTED_ORIGINS = []
+
+    CORS_ORIGIN_WHITELIST = ("www.www.incamedical.com:10101", "http://www.www.incamedical.com:10101")
 
     CORS_ORIGIN_ALLOW_ALL = True
 
@@ -81,17 +99,17 @@ class Base(Configuration):
         'Accept',
         #  'Accept-Encoding',
         #   'x-requested-with',
-        #   'x-csrftoken',
+        # 'x-csrftoken',
         #   'Content-Disposition',
         #   'Access-Control-Allow-Credentials',
         #   'Origin',
         'enctype',
         #   'user-agent',
         #   'Redirect',
-        #   'Authorization',
+        'Authorization',
     )
 
-    #  CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_CREDENTIALS = True
 
     CORS_ALLOW_METHODS = (
         'GET',
@@ -167,6 +185,7 @@ class Base(Configuration):
     MANAGERS = ADMINS
     # base public URL of MEDIA_ROOT directory
     MEDIA_URL = join('static', 'media/')
+
     MEDIA_ROOT = join(Globals.BASE_DIR, 'media')
     # the full path to a directory where you’d like Django to store uploaded files
 

@@ -3,7 +3,8 @@ from os.path import join, abspath, dirname, relpath, realpath
 BASE_DIR = abspath(dirname(__name__))  # .../API
 PROJECT_DIR = dirname(dirname(abspath(__file__)))  # .../API/API
 SETTINGS_DIR = dirname(realpath(__file__))  # .../API/API/settings
-PROJECT_NAME = relpath(PROJECT_DIR)  # DimeAPI
+PROJECT_NAME = relpath(PROJECT_DIR)  # API
+WEBSITE_DIR = join(BASE_DIR, "..", "Web")
 
 SECURE = 'https://'
 UNSECURE = 'http://'
@@ -16,7 +17,7 @@ PASSWORD_LENGTH = 64
 EMAIL_TIMEOUT = 10
 EMAIL_LENGTH = 100
 EMAIL_USE_TLS = True
-EMAIL_TEMPLATE_DIR = join(PROJECT_NAME, "EmailTemplates")
+EMAIL_TEMPLATE_DIR = join(PROJECT_NAME, "templates", "email")
 EMAIL_FROM_DOMAIN = 'incamedical.com'
 NONCE_LENGTH = 50
 ADDRESS_LENGTH = 42
@@ -30,13 +31,15 @@ AUTHORIZATION_CODE_LENGTH = 20
 IMAGE_DIR = "images/"
 ICON_NAME_LENGTH = 30
 UUID_ZERO = "00000000-0000-0000-0000-000000000000"
+ACCESS_TOKEN_EXPIRE_SECONDS = 60000
 
 USER_STATUS = {
     'ACTIVE': 1,
     'INACTIVE': 2,
     'SUSPENDED': 3,
     'BLOCKED': 4,
-    'VISITOR': 5
+    'VISITOR': 5,
+    'REGISTERED': 6
 }
 NAME_TYPE = {
     'FIRST': 1,
@@ -58,12 +61,11 @@ PHONE_NUMBER_TYPE = (
 )
 #  Email Templates
 EMAIL_TEMPLATE = {
-    'VERIFY': 1,
-    'WELCOME': 2,
-    'FORGOT': 3,
+    'CONFIRM': 1,
+    'FORGOT': 2,
+    'WELCOME': 3,
     'RESET': 4,
-    'CONTACTUS': 5,
-    'AFFILIATE': 6
+    'CONTACTUS': 5
 }
 EMAIL_ADDRESS_TYPE = {
     'PRIMARY': 1,
