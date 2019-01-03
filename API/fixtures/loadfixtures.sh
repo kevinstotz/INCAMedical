@@ -1,3 +1,5 @@
+#!/bin/bash
+PYTHON=`which python`
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base image.json
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base index.json
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base role.json
@@ -44,5 +46,5 @@ python manage.py loaddata --configuration=Prod --settings=API.settings.Base emai
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base emailaddress.json
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base auditindicatorupload.json
 python manage.py loaddata --configuration=Prod --settings=API.settings.Base auditindicatornote.json
-python manage.py loaddata --configuration=Prod --settings=API.settings.Base auditindicatoroptions.json
+python manage.py loaddata --configuration=Prod --settings=API.settings.Base auditindicatoroption.json
 

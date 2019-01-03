@@ -12,17 +12,20 @@ class BasePermission(object):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
+        print(request.user.is_authenticated)
         return True
 
     def has_object_permission(self, request, view, obj):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
+        print(request.user.is_authenticated)
         return True
 
 
 class IsAuthenticatedOrCreate(permissions.IsAuthenticated):
     def has_permission(self, request, view):
+        print(request.user.is_authenticated)
         if request.method == 'POST':
             return True
         else:
@@ -36,4 +39,5 @@ class IsAuthenticated(BasePermission):
     """
 
     def has_permission(self, request, view):
+        print(request.user.is_authenticated)
         return request.user and request.user.is_authenticated

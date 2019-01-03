@@ -3,8 +3,9 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
-from API.settings.Globals import EMAIL_LENGTH, PASSWORD_LENGTH, AUDIT_AREA_NAME_LENGTH, UUID_ZERO, \
-    ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH, DEFAULT_USER
+from API.settings.Globals import EMAIL_LENGTH, PASSWORD_LENGTH, AUDIT_AREA_NAME_LENGTH, UUID_ZERO, USER_STATUS, \
+    ADDRESS_LENGTH, FIRST_NAME_LENGTH, EMAIL_TEMPLATE_DIR, COMPANY_NAME_LENGTH, SITE_ID_LENGTH, DEFAULT_USER, \
+    NAME_TYPE
 
 
 def validate_uuid(value):
@@ -276,7 +277,7 @@ class Role(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return '%s' % self.role
+        return '%s' % self.type
 
     class Meta:
         ordering = ('id', )
@@ -806,44 +807,38 @@ class UserStatus(models.Model):
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
-        """
-        Creates and saves a User with the given email, date of
-        birth and password.
-        """
+
+    def create_user(self, email, status=USER_STATUS['ACTIVE'], password=None, firstname="", lastname=""):
+
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
             email=self.normalize_email(email),
-
+            username=self.normalize_email(email)
         )
-        user_profile = UserProfile()
+        first_name = PersonName(name=firstname, type=NameType.objects.get(pk=NAME_TYPE['FIRST']))
+        first_name.save()
+        last_name = PersonName(name=lastname, type=NameType.objects.get(pk=NAME_TYPE['LAST']))
+        last_name.save()
+        user_profile = UserProfile(first_name=first_name, last_name=last_name)
         user_profile.save()
         user.user_profile = user_profile
-        user_status = UserStatus(pk=1)
-        user_status.save()
-        user.status = user_status
+        user.status = UserStatus.objects.get(pk=status)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password):
-        """
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        """
+    def create_superuser(self, email, status=USER_STATUS['ACTIVE'], password=None, firstname="", lastname=""):
+
         user = self.create_user(
             email,
             password=password,
-
+            status=status,
+            firstname=firstname,
+            lastname=lastname
         )
-        user_profile = UserProfile()
-        user_profile.save()
-        user_status = UserStatus(pk=1)
-        user_status.save()
-        user.status = user_status
-        # user.user_profile = user_profile
+
         user.is_admin = True
         user.save(using=self._db)
         return user
@@ -873,37 +868,29 @@ class EmailAddressStatus(models.Model):
 
 class EmailTemplate(models.Model):
     id = models.AutoField(primary_key=True)
-    subject = models.CharField(max_length=60, verbose_name="Subject of Email")
-    fromAddress = models.CharField(max_length=50, verbose_name="From Username")
-    htmlFilename = models.FileField(upload_to=EMAIL_TEMPLATE_DIR,
-                                    max_length=100,
-                                    blank=True,
-                                    null=True,
-                                    verbose_name="Email Template HTML Filename")
-    textFilename = models.FileField(upload_to=EMAIL_TEMPLATE_DIR,
-                                    max_length=100,
-                                    blank=True,
-                                    null=True,
-                                    verbose_name="Email Template Text Filename")
+    subject = models.CharField(max_length=60, verbose_name="Subject of Email Template")
+    from_address = models.CharField(max_length=50, verbose_name="Email Template From Address")
+    html = models.FileField(upload_to=EMAIL_TEMPLATE_DIR,
+                            max_length=100,
+                            blank=True,
+                            null=True,
+                            verbose_name="Email Template HTML Filename")
+    text = models.FileField(upload_to=EMAIL_TEMPLATE_DIR,
+                            max_length=100,
+                            blank=True,
+                            null=True,
+                            verbose_name="Email Template Text Filename")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Email Template Active")
     disabled = models.BooleanField(default=False, verbose_name="Email Template Disabled")
     creator = models.IntegerField(default=DEFAULT_USER,
-                                  verbose_name="Address Type Creator",
+                                  verbose_name="Email Template Creator",
                                   blank=False)
     owner = models.IntegerField(default=DEFAULT_USER,
-                                verbose_name="Address Type Owner",
+                                verbose_name="Email Template Owner",
                                 blank=False)
     objects = models.Manager()
-
-    @property
-    def html_name(self):
-        return self.htmlFilename.name
-
-    @property
-    def text_name(self):
-        return self.textFilename.name
 
     def __str__(self):
         return '%s' % self.subject
@@ -930,6 +917,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                default=1,
                                verbose_name="Customer User Status",
                                related_name="customUserStatus", )
+    user_profile = models.OneToOneField(UserProfile,
+                                        on_delete=models.CASCADE,
+                                        default=1,
+                                        verbose_name="Custom User User Profile",
+                                        related_name="customUserUserProfile", )
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     is_active = models.BooleanField(default=True)
     is_logged_in = models.BooleanField(default=False)

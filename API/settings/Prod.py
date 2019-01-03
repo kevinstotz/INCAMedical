@@ -28,7 +28,8 @@ class Prod(Base):
     STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
     # URL prefix for static files.
     # Example: "http://media.lawrence.com/static/"
-
+    MEDIA_ROOT = join(Globals.BASE_DIR, 'media', 'uploads')
+    MEDIA_URL = "/media/"
     STATIC_URL = '/static/'
     # Additional locations of static files
     STATICFILES_DIRS = (

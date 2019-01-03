@@ -7,9 +7,89 @@ from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, 
     TemplateIndicatorOption, TemplateIndicatorType, AuditIndicatorOption, AuditIndicatorUpload, AuditIndicatorNote
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Count
+from rest_framework import serializers
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s (%(threadName)-2s) %(message)s')
+
+
+class CustomUserPasswordResetSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        read_only_fields = ('id', 'email', 'password', )
+        fields = ('id', 'password', )
+        extra_kwargs = {'confirm_password': {'read_only': True}}
+
+    def validate(self, validated_data):
+
+        if not self.context.get("confirm_password"):
+            raise serializers.ValidationError("Empty Confirm Password")
+
+        if not validated_data.get('password'):
+            raise serializers.ValidationError("Empty Password")
+
+        if validated_data.get('password') != self.context.get("confirm_password"):
+            raise serializers.ValidationError("Mismatch")
+
+        return validated_data
+
+
+class CustomUserForgotPasswordSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        read_only_fields = ('id', 'email', )
+        fields = ('id', 'email', 'active', )
+
+    def update(self, data):
+
+        if not data.get('password'):
+            raise serializers.ValidationError("Empty Password")
+
+        if not self.context.get("confirm_password"):
+            raise serializers.ValidationError("Empty Confirm Password")
+
+        if data.get('password') != self.context.get("confirm_password"):
+            raise serializers.ValidationError("Mismatch")
+
+        return
+
+
+class CustomUserLoginSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'password', )
+
+
+
+class CustomUserRegisterSerializer(ModelSerializer):
+
+    def validate(self, data):
+
+        try:
+            user = CustomUser.objects.get(email=data.get('username'))
+            if len(user) > 0:
+                raise serializers.ValidationError("Username already exists")
+        except CustomUser.DoesNotExist:
+            pass
+
+        if not data.get('password'):
+            raise serializers.ValidationError("Empty Password")
+
+        if not self.context.get("confirm_password"):
+            raise serializers.ValidationError("Empty Confirm Password")
+
+        if data.get('password') != self.context.get("confirm_password"):
+            raise serializers.ValidationError("Mismatch")
+
+        return data
+
+    class Meta:
+        model = CustomUser
+        read_only_fields = ('confirm_password', 'firstname', 'lastname', )
+        fields = ('is_active', 'email', 'password', )
 
 
 class IndexSerializer(ModelSerializer):
@@ -100,8 +180,8 @@ class AuditIndicatorOptionSerializer(ModelSerializer):
         fields = ('id', 'audit', 'indicator', 'option', )
 
     def update(self, instance, validated_data):
+        print("SSS")
         print(validated_data)
-        print(instance)
         return instance
 
 
@@ -354,14 +434,18 @@ class TemplateDetailSerializer(ModelSerializer):
         fields = ('id', 'name', 'categories', 'indicators', 'company', )
 
     def get_categories(self, instance):
-        serializer = TemplateCategorySerializer(TemplateCategory.objects.filter(template=instance), many=True)
-        return serializer.data
+        categories_serializers = TemplateCategorySerializer(TemplateCategory.objects.filter(template=instance), many=True)
+        if categories_serializers:
+            return categories_serializers.data
+        return []
 
     def get_audit_id(self, instance):
-        serializer = TemplateIndicatorDetailSerializer(TemplateIndicator.objects.filter(template=instance),
+        audit_serializer = TemplateIndicatorDetailSerializer(TemplateIndicator.objects.filter(template=instance),
                                                        many=True,
                                                        context={'audit_id': self.context.get("audit_id")})
-        return serializer.data
+        if audit_serializer:
+            return audit_serializer.data
+        return []
 
     def update(self, instance, validated_data):
         if "categories" in self.initial_data:
@@ -393,6 +477,19 @@ class CustomUserSerializer(ModelSerializer):
         read_only_fields = ('id', 'email', )
         fields = ('id', 'email', )
 
+    def update(self, instance, validated_data):
+        if not validated_data.get('password'):
+            raise serializers.ValidationError("Empty Password")
+
+        if not self.context.get("confirm_password"):
+            raise serializers.ValidationError("Empty Confirm Password")
+
+        if validated_data.get('password') != self.context.get("confirm_password"):
+            raise serializers.ValidationError("Mismatch")
+
+
+        return instance
+
 
 class NameTypeSerializer(ModelSerializer):
 
@@ -404,6 +501,7 @@ class NameTypeSerializer(ModelSerializer):
 
 class PersonNameSerializer(ModelSerializer):
     type = NameTypeSerializer(many=False, read_only=True)
+    name = serializers.CharField(required=True)
 
     class Meta:
         model = PersonName
@@ -435,7 +533,6 @@ class PhoneNumberSerializer(ModelSerializer):
     country = CountrySerializer(many=False, read_only=True)
 
     class Meta:
-        depth = 2
         model = PhoneNumber
         read_only_fields = ('id', 'created', )
         fields = ('id', 'phone_number', 'type', 'country', )
@@ -466,15 +563,42 @@ class SpecialtyTypeSerializer(ModelSerializer):
 
 
 class AuditAreaDetailSerializer(ModelSerializer):
-    director = PersonNameSerializer()
-    manager = PersonNameSerializer()
-    phone = PhoneNumberSerializer()
+    director = SerializerMethodField()
+    manager = SerializerMethodField()
+    specialty_type = SerializerMethodField()
+    clinic_type = SerializerMethodField()
+    phone = SerializerMethodField()
+    company = SerializerMethodField()
 
     class Meta:
         model = AuditArea
         read_only_fields = ('id', 'created', )
         fields = ('id', 'name', 'present_on_rounds', 'company', 'director',
                   'manager', 'phone', 'specialty_type', 'clinic_type', )
+
+    def get_manager(self, instance):
+        person_name = PersonNameSerializer(instance.manager)
+        return person_name.data
+
+    def get_director(self, instance):
+        person_name = PersonNameSerializer(instance.director)
+        return person_name.data
+
+    def get_specialty_type(self, instance):
+        specialty_type = SpecialtyTypeSerializer(instance.specialty_type)
+        return specialty_type.data
+
+    def get_clinic_type(self, instance):
+        clinic_type = ClinicTypeSerializer(instance.clinic_type)
+        return clinic_type.data
+
+    def get_phone(self, instance):
+        phone = PhoneNumberSerializer(instance.phone)
+        return phone.data
+
+    def get_company(self, instance):
+        company = PhoneNumberSerializer(instance.company)
+        return company.data
 
     def update(self, instance, validated_data):
         instance.specialty_type = validated_data.get('specialty_type', instance.specialty_type)
@@ -486,21 +610,16 @@ class AuditAreaDetailSerializer(ModelSerializer):
         director = PersonName.objects.get(pk=instance.director.pk)
         director.name = validated_data.get("director", instance.director)['name']
         director.save()
+
         manager = PersonName.objects.get(pk=instance.manager.pk)
         manager.name = validated_data.get("manager", instance.manager)['name']
         manager.save()
+
         phone = PhoneNumber.objects.get(pk=instance.phone.pk)
         phone.phone_number = validated_data.get("phone", instance.phone)['phone_number']
         phone.save()
 
         return instance
-
-    @staticmethod
-    def getContextItem(needle, instance):
-        try:
-            return instance[needle]
-        except KeyError:
-            return None
 
 
 class AuditAreaListSerializer(ModelSerializer):
@@ -516,15 +635,21 @@ class AuditAreaListSerializer(ModelSerializer):
 
     def get_director(self, instance):
         serializer = PersonNameSerializer(PersonName.objects.get(auditAreaDirector=instance))
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return {}
 
     def get_manager(self, instance):
         serializer = PersonNameSerializer(PersonName.objects.get(auditAreaManager=instance))
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return {}
 
     def get_phone(self, instance):
         serializer = PhoneNumberSerializer(PhoneNumber.objects.get(auditAreaPhoneNumber=instance))
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return {}
 
     def create(self, validated_data):
 
@@ -588,7 +713,6 @@ class TemplateIndicatorDetailSerializer(ModelSerializer):
         fields = ('id', 'uuid', 'name', 'parent', 'position', 'indicator_options', 'indicator_type', 'option', 'images', 'notes', 'uploads', )
 
     def update(self, instance, validated_data):
-        print(instance)
         print(validated_data)
         instance.parent = validated_data.get('parent', instance.parent)
         instance.uuid = validated_data.get('uuid', instance.uuid)
@@ -598,17 +722,22 @@ class TemplateIndicatorDetailSerializer(ModelSerializer):
 
     def get_indicator_options(self, instance):
         serializer = TemplateIndicatorOptionSerializer(instance.indicator_options.all(), many=True)
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return []
 
     def get_option(self, instance):
         try:
             audit_indicator_options = AuditIndicatorOption.objects.filter(audit=self.context.get("audit_id"),
                                                                           indicator=instance)
             for audit_indicator_option in audit_indicator_options:
-                print(audit_indicator_option)
                 serializer = AuditIndicatorOptionSerializer(audit_indicator_option)
-            return serializer.data['option']
-        except:
+                if serializer:
+                    return serializer.data['option']
+                return ""
+
+        except Exception as error:
+            print(error)
             return 1
 
     def get_images(self, instance):
@@ -688,14 +817,18 @@ class AuditDetailSerializer(ModelSerializer):
 
     def get_template(self, instance):
         serializer = TemplateDetailSerializer(instance.template, context={'audit_id': instance.id})
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return {}
 
     def get_scores(self, instance):
         return instance.template.indicators.through.objects.values('indicator_options').order_by('indicator_options').annotate(count=Count('indicator_options'))
 
     def get_area(self, instance):
         serializer = AuditAreaDetailSerializer(instance.area)
-        return serializer.data
+        if serializer:
+            return serializer.data
+        return {}
 
     def update(self, instance, validated_data):
         return instance

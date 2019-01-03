@@ -1,0 +1,7 @@
+Hello FIRSTNAME,
+Welcome to INCA Medical.
+
+WELCOME_URL
+
+Support
+Inca Medical

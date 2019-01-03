@@ -44,5 +44,5 @@ python manage.py loaddata --configuration=Dev --settings=API.settings.Base email
 python manage.py loaddata --configuration=Dev --settings=API.settings.Base emailaddress.json
 python manage.py loaddata --configuration=Dev --settings=API.settings.Base auditindicatorupload.json
 python manage.py loaddata --configuration=Dev --settings=API.settings.Base auditindicatornote.json
-python manage.py loaddata --configuration=Dev --settings=API.settings.Base auditindicatoroptions.json
+python manage.py loaddata --configuration=Dev --settings=API.settings.Base auditindicatoroption.json
 
