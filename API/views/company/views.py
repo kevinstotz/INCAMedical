@@ -1,7 +1,6 @@
 import logging
 from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login, logout
 from API.models import Company, AuditArea, ClinicType, SpecialtyType, Template, Category, Indicator, TemplateCategory, \
     IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index, NoteType, Note, Upload, UploadType, \
@@ -17,7 +16,9 @@ from API.serializer import CompanySerializer, AuditAreaListSerializer, ClinicTyp
     NoteTypeSerializer, NoteSerializer, AuditListSerializer, TemplateIndicatorDetailSerializer, AuditCreateSerializer, \
     TemplateCategoryDetailSerializer, UploadSerializer, TemplateDetailSerializer, IndicatorTypeSerializer, \
     IndicatorCreateSerializer, TemplateCreateSerializer, AuditIndicatorOptionSerializer, AuditAreaDetailSerializer, \
-    CustomUserRegisterSerializer, CustomUserLoginSerializer, CustomUserSerializer, CustomUserPasswordResetSerializer
+    CustomUserRegisterSerializer, CustomUserLoginSerializer, CustomUserSerializer, CustomUserPasswordResetSerializer, \
+    CustomUserDetailSerializer
+
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
 from API.settings.Globals import DEFAULT_USER, WEBSITE_DIR, USER_STATUS, EMAIL_TEMPLATE, ACCESS_TOKEN_EXPIRE_SECONDS
 from django.shortcuts import get_object_or_404
@@ -26,6 +27,7 @@ from django.core.files.storage import FileSystemStorage
 from rest_framework_json_api import renderers
 from rest_framework.response import Response
 from oauth2_provider.contrib.rest_framework import OAuth2Authentication
+from oauth2_provider.oauth2_backends import OAuthLibCore
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework import generics, status, permissions
 import json
@@ -109,8 +111,6 @@ class CustomUserForgotPassword(generics.ListAPIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-from oauth2_provider.views import TokenView
-from oauth2_provider.oauth2_backends import OAuthLibCore
 class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
     permission_classes = [permissions.AllowAny, ]
     queryset = CustomUser.objects.all()
@@ -127,7 +127,6 @@ class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
             return CustomUser.objects.get(email=data.get('email'))
         except CustomUser.DoesNotExist:
             raise ValidationError("Username not found")
-
 
     def post(self, request):
 
@@ -148,9 +147,9 @@ class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
                     data = body
                     params = dict(parse.parse_qsl(data))
                     uri = OAuthLibCore().create_authorization_response(request=request,
-                                                                           scopes={"read": "Read Scope", "write": "Write Scope"},
-                                                                           credentials={"redirect_uri" : params['redirect_uri'], "response_type": params['response_type'], "client_id": params['client_id']},
-                                                                           allow=True)
+                                                                       scopes={"read": "Read Scope", "write": "Write Scope"},
+                                                                       credentials={"redirect_uri": params['redirect_uri'], "response_type": params['response_type'], "client_id": params['client_id']},
+                                                                       allow=True)
 
                     params = parse.urlparse(uri[0])
                     params = dict(parse.parse_qsl(params.fragment))
@@ -174,7 +173,7 @@ class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
 
 
 class CustomUserRegister(OAuthLibMixin, generics.GenericAPIView):
-    permission_classes = [permissions.AllowAny,]
+    permission_classes = [permissions.AllowAny, ]
     serializer_class = CustomUserSerializer
     server_class = oauth2_settings.OAUTH2_SERVER_CLASS
     validator_class = oauth2_settings.OAUTH2_VALIDATOR_CLASS
@@ -325,9 +324,9 @@ class AuditIndicatorImageUpload(generics.RetrieveUpdateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            audit_indicator_upload = AuditIndicatorUpload.objects.create(audit=Audit.objects.get(pk=audit),
-                                                                         upload=upload,
-                                                                         indicator=self.get_object())
+            AuditIndicatorUpload.objects.create(audit=Audit.objects.get(pk=audit),
+                                                                        upload=upload,
+                                                                        indicator=self.get_object())
 
         except (RuntimeError, TypeError, NameError) as e:
             result = '{0}:'.format(e)
@@ -336,7 +335,6 @@ class AuditIndicatorImageUpload(generics.RetrieveUpdateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(ReturnResponse.Response(0, __name__, json.dumps(upload_serializer.data), "success").return_json(),
                         status=status.HTTP_201_CREATED)
-
 
 
 class IndexView(generics.GenericAPIView):
@@ -354,6 +352,7 @@ class IndexView(generics.GenericAPIView):
         print(request)
         return Response(ReturnResponse.Response(0, __name__, request.data, "success").return_json(),
                         status=status.HTTP_201_CREATED)
+
 
 class IndicatorTypeList(generics.ListAPIView):
     model = IndicatorType
@@ -855,6 +854,40 @@ class AuditIndicatorOptionDetail(generics.RetrieveUpdateDestroyAPIView):
 
         return Response(ReturnResponse.Response(0, __name__, serializer.id, "success").return_json(),
                         status=status.HTTP_201_CREATED)
+
+
+class UserDetail(generics.RetrieveUpdateAPIView):
+    model = CustomUser
+    queryset = CustomUser.objects.filter(user_profile__disabled=False).order_by('id')
+    serializer_class = CustomUserSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    authentication_classes = [OAuth2Authentication]
+    permission_classes = [permissions.IsAuthenticated, permissions.AllowAny]
+
+    def update(self, request, *args, **kwargs):
+        serializer = CustomUserDetailSerializer(self.get_object(), data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer = serializer.save()
+        except ValidationError as error:
+            result = '{0}:'.format(error)
+            logger.error("SerializeR Error: {0}: error:{1}".format(serializer.errors, result))
+            return Response(ReturnResponse.Response(1, __name__, 'Custom USer Error', result).return_json(),
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ReturnResponse.Response(0, __name__, serializer.id, "success").return_json(),
+                        status=status.HTTP_200_OK)
+
+
+class UserList(generics.ListAPIView):
+    model = CustomUser
+    queryset = CustomUser.objects.filter(user_profile__disabled=False).order_by('id')
+    serializer_class = CustomUserSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    authentication_classes = [OAuth2Authentication]
+    permission_classes = [permissions.IsAuthenticated, permissions.AllowAny]
 
 
 class CompanyList(generics.ListAPIView):

@@ -22,6 +22,7 @@ from API.views.company.views import IndexView, \
     CompanyList, CompanyDetail, CompanyCreate, \
     SpecialtyTypeList, SpecialtyTypeDetail, \
     AuditAreaList, AuditAreaDetail, \
+    UserList, UserDetail, \
     ClinicTypeList, ClinicTypeDetail, \
     TemplateList, TemplateDetail, TemplateCreate, \
     CategoryList, CategoryDetail, \
@@ -48,6 +49,7 @@ urlpatterns = [
     path(r'index/', IndexView.as_view(), name="indexView"),
     path(r'api/', IndexView.as_view(), name="indexView"),
     path(r'api/v1/', IndexView.as_view(), name="indexView"),
+
     path(r'api/v1/company/', CompanyList.as_view()),
     path(r'api/v1/company/create/', CompanyCreate.as_view(), name="companyCreate"),
     path(r'api/v1/company/<int:pk>/', CompanyDetail.as_view(), name="companyDetail"),
@@ -90,6 +92,9 @@ urlpatterns = [
     path(r'api/v1/indicator/', IndicatorList.as_view(), name="indicatorList"),
     path(r'api/v1/indicator/create/', IndicatorCreate.as_view(), name="indicatorCreate"),
     path(r'api/v1/indicator/<int:pk>/', IndicatorDetail.as_view(), name="indicatorDetail"),
+
+    path(r'api/v1/user/', UserList.as_view(), name="userList"),
+    path(r'api/v1/user/<int:pk>/', UserDetail.as_view(), name="userDetail"),
 
     path(r'api/v1/template-category/', TemplateCategoryList.as_view(), name="templateCategoryList"),
     path(r'api/v1/template-category/<int:pk>/', TemplateCategoryDetail.as_view(), name="templateCategoryDetail"),

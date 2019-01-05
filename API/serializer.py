@@ -1,7 +1,7 @@
 import logging
 from API.settings.Globals import UUID_ZERO, TEMPLATE_COMPANY
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField, PrimaryKeyRelatedField
-from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, Image, Upload, \
+from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, Image, Upload, UserStatus, \
     CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, Note, NoteType, \
     Country, ClinicType, SpecialtyType, Template, Category, Indicator, IndicatorOption, IndicatorType, UploadType, \
     TemplateIndicatorOption, TemplateIndicatorType, AuditIndicatorOption, AuditIndicatorUpload, AuditIndicatorNote
@@ -11,6 +11,18 @@ from rest_framework import serializers
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s (%(threadName)-2s) %(message)s')
+
+class CustomUserDetailSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        read_only_fields = ('id', 'email', )
+        fields = ('id', 'is_active', )
+
+    def update(self, instance, validated_data):
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.save()
+        return instance
 
 
 class CustomUserPasswordResetSerializer(ModelSerializer):
@@ -180,7 +192,6 @@ class AuditIndicatorOptionSerializer(ModelSerializer):
         fields = ('id', 'audit', 'indicator', 'option', )
 
     def update(self, instance, validated_data):
-        print("SSS")
         print(validated_data)
         return instance
 
@@ -279,6 +290,14 @@ class NoteTypeSerializer(ModelSerializer):
         fields = ('id', 'type', )
 
 
+class UserStatusSerializer(ModelSerializer):
+
+    class Meta:
+        model = UserStatus
+        read_only_fields = ('id', )
+        fields = ('id', 'status', )
+
+
 class NoteSerializer(ModelSerializer):
     type = PrimaryKeyRelatedField(queryset=NoteType.objects.all(), many=False, read_only=False)
     fromUser = PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), many=False, read_only=False)
@@ -330,9 +349,7 @@ class IndicatorCreateSerializer(ModelSerializer):
 
         for indicator_option in IndicatorOption.objects.filter(company=TEMPLATE_COMPANY, active=True, disabled=False):
             indicator.options.add(indicator_option)
-
         indicator.save()
-
         return indicator
 
 
@@ -471,11 +488,12 @@ class TemplateDetailSerializer(ModelSerializer):
 
 
 class CustomUserSerializer(ModelSerializer):
+    status = UserStatusSerializer(many=False, read_only=True)
 
     class Meta:
         model = CustomUser
         read_only_fields = ('id', 'email', )
-        fields = ('id', 'email', )
+        fields = ('id', 'email', 'is_active', 'status', 'last_login', )
 
     def update(self, instance, validated_data):
         if not validated_data.get('password'):
