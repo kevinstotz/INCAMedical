@@ -1,6 +1,8 @@
 from os.path import join, abspath, dirname, relpath, realpath
+from unipath import Path
 
-BASE_DIR = abspath(dirname(__name__))  # .../API
+#  BASE_DIR = abspath(dirname(__name__))  # .../API
+BASE_DIR = Path(__file__).ancestor(3)
 PROJECT_DIR = dirname(dirname(abspath(__file__)))  # .../API/API
 SETTINGS_DIR = dirname(realpath(__file__))  # .../API/API/settings
 PROJECT_NAME = relpath(PROJECT_DIR)  # API

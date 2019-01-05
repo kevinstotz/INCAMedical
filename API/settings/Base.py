@@ -185,9 +185,13 @@ class Base(Configuration):
     MANAGERS = ADMINS
     # base public URL of MEDIA_ROOT directory
     MEDIA_URL = join('static', 'media/')
-
     MEDIA_ROOT = join(Globals.BASE_DIR, 'media')
-    # the full path to a directory where you’d like Django to store uploaded files
+
+    STATIC_URL = '/static/'
+    #  STATIC_ROOT = join(Globals.BASE_DIR, "API", "static")
+    STATIC_ROOT = Globals.BASE_DIR.child('static')
+    STATICFILES_DIRS = [
+        Globals.BASE_DIR.child('API').child('static'), ]
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -198,4 +202,7 @@ class Base(Configuration):
 
 
 # from API.settings.Dev import Dev
+    print(Globals.BASE_DIR)
+    print(STATIC_ROOT)
+STATIC_ROOT = Globals.BASE_DIR.child('static')
 from API.settings.Prod import Prod

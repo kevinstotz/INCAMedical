@@ -2,10 +2,10 @@ from API.settings import Globals
 from API.settings.Base import Base
 from os.path import join
 
-
 class Prod(Base):
     TIME_ZONE = 'UTC'
-
+    DEBUG = True
+    DJANGO_LOG_LEVEL = DEBUG
     # SECURITY WARNING: don't run with debug turned on in production!
 
     WEBSITE_IP_ADDRESS = "127.0.0.1"
@@ -25,16 +25,16 @@ class Prod(Base):
     Base.ALLOWED_HOSTS.append(ENGINE_HOSTNAME)
     Base.ALLOWED_HOSTS.append("52.25.200.16")
     Base.ALLOWED_HOSTS.append("*")
-    STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "media", )
     # URL prefix for static files.
     # Example: "http://media.lawrence.com/static/"
     MEDIA_ROOT = join(Globals.BASE_DIR, 'media', 'uploads')
     MEDIA_URL = "/media/"
-    STATIC_URL = '/static/'
+    #  STATIC_URL = '/static/'
     # Additional locations of static files
-    STATICFILES_DIRS = (
-        join("/var", "www", "html", "incamedical", "INCAMedical", "static", ),
+    #STATIC_ROOT = join("/var", "www", "html", "incamedical", "INCAMedical_web", "static" )
+    #STATICFILES_DIRS = (
+    #    join("/var", "www", "html", "incamedical", "INCAMedical", "static", ),
         # Put strings here, like "/home/html/static" or "C:/www/django/static".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-    )
+    #)

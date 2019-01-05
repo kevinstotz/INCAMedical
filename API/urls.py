@@ -105,6 +105,10 @@ urlpatterns = [
     path(r'api/v1/audit/', AuditList.as_view(), name="auditsAuditList"),
     path(r'api/v1/audit/<int:pk>/', AuditDetail.as_view(), name="auditsAuditDetail"),
  ] + static(Base.MEDIA_URL, document_root=Base.MEDIA_ROOT)
+#  + static(Base.STATIC_URL, document_root=Base.STATIC_ROOT)
+print(Base.STATIC_URL)
+print(Base.STATIC_ROOT)
+ #  ] + static(Base.MEDIA_URL, document_root=Base.MEDIA_ROOT) + static(Base.STATIC_URL, document_root=Base.STATIC_ROOT)
 
 #  static(Base.STATIC_URL, document_root=Base.STATIC_ROOT) +
 urlpatterns = format_suffix_patterns(urlpatterns)
