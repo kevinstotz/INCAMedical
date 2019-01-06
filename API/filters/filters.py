@@ -51,6 +51,24 @@ class NoteTypeDetailFilter(FilterSet):
         fields = ['active', 'id', ]
 
 
+class RoleListFilter(FilterSet):
+    active = filters.BooleanFilter()
+    id = filters.NumberFilter()
+
+    class Meta:
+        Model = Note
+        fields = ['active', 'id', ]
+
+
+class RoleDetailFilter(FilterSet):
+    active = filters.BooleanFilter()
+    id = filters.NumberFilter()
+
+    class Meta:
+        Model = Note
+        fields = ['active', 'id', ]
+
+
 class NoteTypeListFilter(FilterSet):
     active = filters.BooleanFilter()
     type = filters.NumberFilter()

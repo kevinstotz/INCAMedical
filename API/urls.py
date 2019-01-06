@@ -23,6 +23,7 @@ from API.views.company.views import IndexView, \
     SpecialtyTypeList, SpecialtyTypeDetail, \
     AuditAreaList, AuditAreaDetail, \
     UserList, UserDetail, \
+    RoleList, RoleDetail, \
     ClinicTypeList, ClinicTypeDetail, \
     TemplateList, TemplateDetail, TemplateCreate, \
     CategoryList, CategoryDetail, \
@@ -34,14 +35,14 @@ from API.views.company.views import IndexView, \
     AuditList, AuditCreate, AuditDetail, \
     NoteTypeList, NoteDetail, IndicatorImageUpload, \
     AuditIndicatorImageUpload, AuditIndicatorNoteDetail, CustomUserPasswordReset, CustomUserForgotPassword, \
-    AuditIndicatorOptionDetail, CustomUserRegister, CustomUserLogin, CustomUserConfirmAccount
+    AuditIndicatorOptionDetail, CustomUserListRegister, CustomUserLogin, CustomUserConfirmAccount
 
 
 admin.autodiscover()
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path(r'api/v1/register/', CustomUserRegister.as_view()),
+    path(r'api/v1/register/', CustomUserListRegister.as_view()),
     path(r'api/v1/reset-password/<uuid:uuid>/', CustomUserPasswordReset.as_view()),
     path(r'api/v1/forgot-password/', CustomUserForgotPassword.as_view()),
     path(r'api/v1/confirm-account/<uuid:uuid>/', CustomUserConfirmAccount.as_view()),
@@ -78,15 +79,13 @@ urlpatterns = [
     path(r'api/v1/category/', CategoryList.as_view(), name="categoryList"),
     path(r'api/v1/category/<int:pk>/', CategoryDetail.as_view(), name="categoryDetail"),
 
-    path(r'api/v1/audit-indicator-note/<int:pk>/audit/<int:audit>/',
-         AuditIndicatorNoteDetail.as_view(),
+    path(r'api/v1/audit-indicator-note/<int:pk>/audit/<int:audit>/', AuditIndicatorNoteDetail.as_view(),
          name="auditIndicatorNoteDetail"),
     path(r'api/v1/note-type/', NoteTypeList.as_view(), name="noteTypeList"),
     path(r'api/v1/note/', NoteDetail.as_view(), name="note"),
 
     path(r'api/v1/image-upload/<int:pk>/', IndicatorImageUpload.as_view(), name="indicatorImageUpload"),
-    path(r'api/v1/audit-image-upload/<int:pk>/audit/<int:audit>/',
-         AuditIndicatorImageUpload.as_view(),
+    path(r'api/v1/audit-image-upload/<int:pk>/audit/<int:audit>/', AuditIndicatorImageUpload.as_view(),
          name="auditIndicatorImageUpload"),
 
     path(r'api/v1/indicator/', IndicatorList.as_view(), name="indicatorList"),
@@ -96,6 +95,9 @@ urlpatterns = [
     path(r'api/v1/user/', UserList.as_view(), name="userList"),
     path(r'api/v1/user/<int:pk>/', UserDetail.as_view(), name="userDetail"),
 
+    path(r'api/v1/role/', RoleList.as_view(), name="roleList"),
+    path(r'api/v1/role/<int:pk>/', RoleDetail.as_view(), name="roleDetail"),
+
     path(r'api/v1/template-category/', TemplateCategoryList.as_view(), name="templateCategoryList"),
     path(r'api/v1/template-category/<int:pk>/', TemplateCategoryDetail.as_view(), name="templateCategoryDetail"),
 
@@ -103,17 +105,11 @@ urlpatterns = [
     path(r'api/v1/template-indicator/<int:pk>/', TemplateIndicatorDetail.as_view(), name="templateIndicatorDetail"),
 
     path(r'api/v1/audit-indicator-option/audit/<int:audit>/indicator/<int:indicator>/',
-         AuditIndicatorOptionDetail.as_view(),
-         name="auditIndicatorOptionDetail"),
+         AuditIndicatorOptionDetail.as_view(),name="auditIndicatorOptionDetail"),
 
     path(r'api/v1/audit/create/', AuditCreate.as_view(), name="auditsAuditCreate"),
     path(r'api/v1/audit/', AuditList.as_view(), name="auditsAuditList"),
     path(r'api/v1/audit/<int:pk>/', AuditDetail.as_view(), name="auditsAuditDetail"),
  ] + static(Base.MEDIA_URL, document_root=Base.MEDIA_ROOT)
 #  + static(Base.STATIC_URL, document_root=Base.STATIC_ROOT)
-print(Base.STATIC_URL)
-print(Base.STATIC_ROOT)
- #  ] + static(Base.MEDIA_URL, document_root=Base.MEDIA_ROOT) + static(Base.STATIC_URL, document_root=Base.STATIC_ROOT)
-
-#  static(Base.STATIC_URL, document_root=Base.STATIC_ROOT) +
 urlpatterns = format_suffix_patterns(urlpatterns)
