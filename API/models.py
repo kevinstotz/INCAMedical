@@ -263,7 +263,7 @@ class NotificationStatus(models.Model):
 
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=50, default="None", blank=False, unique=True, verbose_name="Role Type")
+    role = models.CharField(max_length=50, default="None", blank=False, unique=True, verbose_name="Role Type")
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Time created")
     active = models.BooleanField(default=True, verbose_name="Role Active")
@@ -406,9 +406,11 @@ class UserProfile(models.Model):
                                      unique=False,
                                      default="1970/01/01",
                                      )
-    roles = models.ManyToManyField(Role,
-                                   related_name="userProfileRoles",
-                                   verbose_name="User Profile Roles")
+    role = models.ForeignKey(Role,
+                             on_delete=models.CASCADE,
+                             default=1,
+                             related_name="userProfileRole",
+                             verbose_name="User Profile Role")
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, verbose_name="Time Updated")

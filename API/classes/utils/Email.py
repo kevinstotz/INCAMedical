@@ -14,6 +14,7 @@ class EmailHandler:
     CONFIRM_ACCOUNT_URL = ""
     LOGO_URL = ""
     FORGOT_PASSWORD_URL = ""
+    REGISTER_URL = ""
 
     def __init__(self, api, website="localhost"):
         self.mail_server = self.get_mail_server()
@@ -23,6 +24,7 @@ class EmailHandler:
         self.FORGOT_PASSWORD_URL = self.api + "/api/v1/reset-password/"
         self.LOGO_URL = self.website + "/static/assets/images/INCA-Logo.png"
         self.CONFIRM_ACCOUNT_URL = self.api + "/api/v1/confirm-account/"
+        self.REGISTER_URL = "/static/register.html?username=USERNAME"
 
     def get_template(self, template):
         return EmailTemplate.objects.get(pk=template)
@@ -37,6 +39,8 @@ class EmailHandler:
             line = line.replace("FIRSTNAME", user.user_profile.first_name.name)
             line = line.replace("FORGOT_PASSWORD_URL", self.FORGOT_PASSWORD_URL + str(user.uuid) + "/")
             line = line.replace("WELCOME_URL", self.WELCOME_URL)
+            line = line.replace("REGISTER_URL", self.REGISTER_URL)
+            line = line.replace("USERNAME", user.username)
             line = line.replace("LOGO_URL", self.LOGO_URL)
             line = line.replace("CONFIRM_ACCOUNT_URL", self.CONFIRM_ACCOUNT_URL + str(user.uuid) + "/")
             content += line

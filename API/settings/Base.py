@@ -61,6 +61,12 @@ class Base(Configuration):
 
         # Uncomment following if you want to access the admin
     )
+    SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+    SESSION_SAVE_EVERY_REQUEST = True
+    SESSION_COOKIE_AGE = 86400  # sec
+    SESSION_COOKIE_DOMAIN = None
+    SESSION_COOKIE_NAME = 'DSESSIONID'
+    SESSION_COOKIE_SECURE = False
     REST_FRAMEWORK = {
         #  'PAGE_SIZE': 10,
         'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',

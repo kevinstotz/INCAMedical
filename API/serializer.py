@@ -2,7 +2,7 @@ import logging
 from API.settings.Globals import UUID_ZERO, TEMPLATE_COMPANY
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField, PrimaryKeyRelatedField
 from API.models import Company, AuditArea, TemplateIndicator, TemplateCategory, Audit, Image, Upload, UserStatus, \
-    CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, Note, NoteType, \
+    CustomUser, PersonName, NameType, PhoneNumber, PhoneNumberType, UserProfile, Index, Note, NoteType, Role, \
     Country, ClinicType, SpecialtyType, Template, Category, Indicator, IndicatorOption, IndicatorType, UploadType, \
     TemplateIndicatorOption, TemplateIndicatorType, AuditIndicatorOption, AuditIndicatorUpload, AuditIndicatorNote
 from django.core.files.storage import FileSystemStorage
@@ -76,7 +76,7 @@ class CustomUserLoginSerializer(ModelSerializer):
 
 
 
-class CustomUserRegisterSerializer(ModelSerializer):
+class CustomUserListRegisterSerializer(ModelSerializer):
 
     def validate(self, data):
 
@@ -487,13 +487,30 @@ class TemplateDetailSerializer(ModelSerializer):
         return None
 
 
+class RoleListSerializer(ModelSerializer):
+
+    class Meta:
+        model = Role
+        read_only_fields = ('id', 'role', )
+        fields = ('id', 'role', )
+
+
+class RoleDetailSerializer(ModelSerializer):
+
+    class Meta:
+        model = Role
+        read_only_fields = ('id', 'role', )
+        fields = ('id', 'role', )
+
+
 class CustomUserSerializer(ModelSerializer):
-    status = UserStatusSerializer(many=False, read_only=True)
+    status = SerializerMethodField()
+    role = SerializerMethodField()
 
     class Meta:
         model = CustomUser
         read_only_fields = ('id', 'email', )
-        fields = ('id', 'email', 'is_active', 'status', 'last_login', )
+        fields = ('id', 'email', 'is_active', 'status', 'last_login', 'role', )
 
     def update(self, instance, validated_data):
         if not validated_data.get('password'):
@@ -505,8 +522,15 @@ class CustomUserSerializer(ModelSerializer):
         if validated_data.get('password') != self.context.get("confirm_password"):
             raise serializers.ValidationError("Mismatch")
 
-
         return instance
+
+    def get_status(self, instance):
+        status = UserStatusSerializer(instance.status)
+        return status.data
+
+    def get_role(self, instance):
+        role = RoleListSerializer(instance.user_profile.role)
+        return role.data
 
 
 class NameTypeSerializer(ModelSerializer):

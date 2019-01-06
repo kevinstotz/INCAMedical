@@ -3,21 +3,21 @@ from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication
 from django.contrib.auth import authenticate, login, logout
 from API.models import Company, AuditArea, ClinicType, SpecialtyType, Template, Category, Indicator, TemplateCategory, \
-    IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index, NoteType, Note, Upload, UploadType, \
+    IndicatorType, IndicatorOption, TemplateIndicator, Audit, Index, NoteType, Note, Upload, UploadType, Role, \
     AuditIndicatorOption, AuditIndicatorUpload, AuditIndicatorNote, UserStatus, CustomUser
 from API.classes.utils import ReturnResponse
 from API.classes.utils.Email import EmailHandler
 from API.filters.filters import TemplateListFilter, TemplateCategoryListFilter, CompanyListFilter, CategoryListFilter, \
     IndicatorOptionListFilter, IndicatorListFilter, IndicatorTypeListFilter, SpecialtyTypeListFilter, AuditListFilter, \
-    TemplateIndicatorListFilter, AuditAreaListFilter, AuditDetailFilter
+    TemplateIndicatorListFilter, AuditAreaListFilter, AuditDetailFilter, RoleListFilter, RoleDetailFilter
 from API.serializer import CompanySerializer, AuditAreaListSerializer, ClinicTypeSerializer, SpecialtyTypeSerializer, \
     TemplateListSerializer, CategorySerializer, IndicatorSerializer, TemplateCategorySerializer, ImageSerializer, \
     IndicatorOptionSerializer, TemplateIndicatorSerializer, AuditDetailSerializer, IndexSerializer, \
     NoteTypeSerializer, NoteSerializer, AuditListSerializer, TemplateIndicatorDetailSerializer, AuditCreateSerializer, \
     TemplateCategoryDetailSerializer, UploadSerializer, TemplateDetailSerializer, IndicatorTypeSerializer, \
     IndicatorCreateSerializer, TemplateCreateSerializer, AuditIndicatorOptionSerializer, AuditAreaDetailSerializer, \
-    CustomUserRegisterSerializer, CustomUserLoginSerializer, CustomUserSerializer, CustomUserPasswordResetSerializer, \
-    CustomUserDetailSerializer
+    CustomUserListRegisterSerializer, CustomUserLoginSerializer, CustomUserSerializer, CustomUserPasswordResetSerializer, \
+    CustomUserDetailSerializer, RoleListSerializer, RoleDetailSerializer
 
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
 from API.settings.Globals import DEFAULT_USER, WEBSITE_DIR, USER_STATUS, EMAIL_TEMPLATE, ACCESS_TOKEN_EXPIRE_SECONDS
@@ -141,7 +141,7 @@ class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
                 with transaction.atomic():
                     custom_user = authenticate(request, username=custom_user.username, password=request.data.get('password'))
                     if custom_user is None:
-                        return Response(ReturnResponse.Response(1, __name__, "Failed Authentication", "error").return_json(), status=status.HTTP_401_UNAUTHORIZED)
+                        return Response(ReturnResponse.Response(1, __name__, "Failed AuthenticaTion", "error").return_json(), status=status.HTTP_401_UNAUTHORIZED)
                     login(request, custom_user)
                     uri, http_method, body, headers = self._extract_params(request)
                     data = body
@@ -172,38 +172,37 @@ class CustomUserLogin(generics.GenericAPIView, OAuthLibMixin, OAuthLibCore):
                         status=status.HTTP_403_FORBIDDEN)
 
 
-class CustomUserRegister(OAuthLibMixin, generics.GenericAPIView):
+class CustomUserListRegister(OAuthLibMixin, generics.ListCreateAPIView):
     permission_classes = [permissions.AllowAny, ]
-    serializer_class = CustomUserSerializer
+    serializer_class = CustomUserListRegisterSerializer
+    parser_classes = (JSONParser, )
     server_class = oauth2_settings.OAUTH2_SERVER_CLASS
     validator_class = oauth2_settings.OAUTH2_VALIDATOR_CLASS
     oauthlib_backend_class = oauth2_settings.OAUTH2_BACKEND_CLASS
 
-    def post(self, request):
-        if request.auth is None:
-            data = request.data.dict()
-            serializer = CustomUserRegisterSerializer(data=data,
+    def create(self, request, *args, **kwargs):
+
+        data = request.data
+        serializer = CustomUserListRegisterSerializer(data=data,
                                                       context={"confirm_password": data.get("confirm_password")})
-            if serializer.is_valid():
-                try:
-                    with transaction.atomic():
-                        new_user = get_user_model().objects.create_user(email=serializer.validated_data.get('email'),
-                                                                        password=serializer.validated_data.get('password'),
-                                                                        status=USER_STATUS['REGISTERED'],
-                                                                        firstname=data.get("firstname"),
-                                                                        lastname=data.get("lastname"))
-                        email_handler = EmailHandler(api="http://www.api.incamedical.com:10100",
-                                                     website="http://www.www.incamedical.com:10101")
-                        email_handler.send_template(EMAIL_TEMPLATE['CONFIRM'], new_user)
-                    return Response(ReturnResponse.Response(0, __name__, new_user.pk, "success").return_json(),
-                                    status=status.HTTP_201_CREATED)
-                except Exception as e:
-                    return Response(ReturnResponse.Response(1, __name__, e, "error2").return_json(),
-                                    status=status.HTTP_400_BAD_REQUEST)
-            return Response(ReturnResponse.Response(1, __name__, serializer.errors, "error3").return_json(),
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    new_user = get_user_model().objects.create_user(email=serializer.validated_data.get('email'),
+                                                                    password=serializer.validated_data.get('password'),
+                                                                    status=USER_STATUS['REGISTERED'],
+                                                                    firstname=data.get("firstname"),
+                                                                    lastname=data.get("lastname"))
+                    email_handler = EmailHandler(api="http://www.api.incamedical.com:10100",
+                                                 website="http://www.www.incamedical.com:10101")
+                    email_handler.send_template(EMAIL_TEMPLATE['CONFIRM'], new_user)
+                return Response(ReturnResponse.Response(0, __name__, new_user.pk, "success").return_json(),
+                                status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response(ReturnResponse.Response(1, __name__, e, "error2").return_json(),
+                                status=status.HTTP_400_BAD_REQUEST)
+        return Response(ReturnResponse.Response(1, __name__, serializer.errors, "error3").return_json(),
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response(ReturnResponse.Response(1, __name__, "error", "error4").return_json(),
-                        status=status.HTTP_403_FORBIDDEN)
 
 
 class CustomUserConfirmAccount(OAuthLibMixin, generics.ListAPIView):
@@ -856,7 +855,7 @@ class AuditIndicatorOptionDetail(generics.RetrieveUpdateDestroyAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class UserDetail(generics.RetrieveUpdateAPIView):
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     model = CustomUser
     queryset = CustomUser.objects.filter(user_profile__disabled=False).order_by('id')
     serializer_class = CustomUserSerializer
@@ -899,6 +898,28 @@ class CompanyList(generics.ListAPIView):
     authentication_classes = [OAuth2Authentication]
     permission_classes = [permissions.IsAuthenticated, permissions.AllowAny]
     filter_class = CompanyListFilter
+
+
+class RoleList(generics.ListAPIView):
+    model = Role
+    queryset = Role.objects.filter(disabled=False).order_by('role')
+    serializer_class = RoleListSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    authentication_classes = [OAuth2Authentication]
+    permission_classes = [permissions.IsAuthenticated, permissions.AllowAny]
+    filter_class = RoleListFilter
+
+
+class RoleDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Role
+    queryset = Role.objects.filter(disabled=False).order_by('role')
+    serializer_class = RoleDetailSerializer
+    renderer_classes = (renderers.JSONRenderer, )
+    parser_classes = (JSONParser, )
+    authentication_classes = [OAuth2Authentication]
+    permission_classes = [permissions.IsAuthenticated, permissions.AllowAny]
+    filter_class = RoleDetailFilter
 
 
 class CompanyCreate(generics.CreateAPIView):
