@@ -56,8 +56,8 @@ class CustomUserPasswordReset(generics.RetrieveUpdateAPIView):
     def get(self, request, *args, **kwargs):
         if self.get_object():
             user = self.get_object()
-            return redirect("http://www.www.incamedical.com:10101/static/reset.html?uuid=" + str(user.uuid))
-        return redirect("http://www.www.incamedical.com:10101/")
+            return redirect("http://audits.incamedical.com/static/reset.html?uuid=" + str(user.uuid))
+        return redirect("http://audits.incamedical.com/")
 
     def update(self, request, *args, **kwargs):
         data = request.data.dict()
@@ -227,7 +227,7 @@ class CustomUserConfirmAccount(OAuthLibMixin, generics.ListAPIView):
             email_handler = EmailHandler(api="http://api.incamedical.com",
                                          website="http://audits.incamedical.com")
             email_handler.send_template(EMAIL_TEMPLATE['WELCOME'], custom_user)
-            return redirect("http://www.www.incamedical.com:10101/static/login.html")
+            return redirect("http://audits.incamedical.com/static/login.html")
 
         except Exception as error:
             print(error)
