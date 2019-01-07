@@ -102,8 +102,8 @@ class CustomUserForgotPassword(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         if self.get_queryset():
             user = self.get_queryset()
-            email_handler = EmailHandler(api="http://www.api.incamedical.com:10100",
-                                         website="http://www.www.incamedical.com:10101")
+            email_handler = EmailHandler(api="http://api.incamedical.com",
+                                         website="http://audits.incamedical.com")
             email_handler.send_template(EMAIL_TEMPLATE['FORGOT'], user)
             return Response(ReturnResponse.Response(0, __name__, user.pk, "success").return_json(),
                             status=status.HTTP_200_OK)
@@ -193,8 +193,8 @@ class CustomUserListRegister(OAuthLibMixin, generics.ListCreateAPIView):
                                                                     status=USER_STATUS['REGISTERED'],
                                                                     firstname=data.get("firstname"),
                                                                     lastname=data.get("lastname"))
-                    email_handler = EmailHandler(api="http://www.api.incamedical.com:10100",
-                                                 website="http://www.www.incamedical.com:10101")
+                    email_handler = EmailHandler(api="http://api.incamedical.com",
+                                                 website="http://audits.incamedical.com")
                     email_handler.send_template(EMAIL_TEMPLATE['CONFIRM'], new_user)
                 return Response(ReturnResponse.Response(0, __name__, new_user.pk, "success").return_json(),
                                 status=status.HTTP_201_CREATED)
@@ -224,8 +224,8 @@ class CustomUserConfirmAccount(OAuthLibMixin, generics.ListAPIView):
             custom_user = CustomUser.objects.get(uuid=str(kwargs.get("uuid")), user_profile__disabled=False)
             custom_user.status = UserStatus.objects.get(pk=USER_STATUS['ACTIVE'])
             custom_user.save()
-            email_handler = EmailHandler(api="http://www.www.incamedical.com:10100",
-                                         website="http://www.www.incamedical.com:10101")
+            email_handler = EmailHandler(api="http://api.incamedical.com",
+                                         website="http://audits.incamedical.com")
             email_handler.send_template(EMAIL_TEMPLATE['WELCOME'], custom_user)
             return redirect("http://www.www.incamedical.com:10101/static/login.html")
 
